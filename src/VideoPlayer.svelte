@@ -5,13 +5,20 @@
     }}
 />
 
+<!-- #region Script
+-->
 <script lang="ts">
-    import { formatVideoDuration, isNil, isNumber } from './lib/lib';
+    import { formatVideoDuration, isNumber } from './lib/lib';
 
-    import play from './assets/icons/videojs-v10/default/play.svg?raw';
-    import pause from './assets/icons/videojs-v10/default/pause.svg?raw';
-    import fullscreen_enter from './assets/icons/videojs-v10/default/fullscreen-enter.svg?raw';
-    import fullscreen_exit from './assets/icons/videojs-v10/default/fullscreen-exit.svg?raw';
+    import InputRange from './InputRange.svelte';
+
+    import icon_play from './assets/icons/videojs-v10/default/play.svg?raw';
+    import icon_pause from './assets/icons/videojs-v10/default/pause.svg?raw';
+    import icon_volume_off from './assets/icons/videojs-v10/default/volume-off.svg?raw';
+    import icon_volume_low from './assets/icons/videojs-v10/default/volume-low.svg?raw';
+    import icon_volume_high from './assets/icons/videojs-v10/default/volume-high.svg?raw';
+    import icon_fullscreen_enter from './assets/icons/videojs-v10/default/fullscreen-enter.svg?raw';
+    import icon_fullscreen_exit from './assets/icons/videojs-v10/default/fullscreen-exit.svg?raw';
 
 
     interface Props {
@@ -25,32 +32,16 @@
     }: Props = $props();
 
 
-    /** Bind to the wrapper element. */
+    /** Binding to the wrapper element. */
     let wrapper: HTMLElement;
-    /** Bind to the video element. */
+    /** Binding to the video element. */
     let video = $state<HTMLVideoElement | null>(null);
-    let controlsProgressBar = $state<HTMLElement | null>(null);
-
-    let videoDuration = $state(0);
-    let videoCurrentTime = $state(0);
-    /** Number between 0 and 1 indicating progress on the video playback. */
-    const videoCurrentTimeProgress = $derived.by(() =>
-    {
-        if (isNumber(videoCurrentTime)
-            && isNumber(videoDuration)
-            && videoCurrentTime >= 0
-            && videoDuration > 0)
-        {
-            return videoCurrentTime / videoDuration;
-        }
-
-        return 0;
-    });
 
     const isControlsEnabled = $derived(controls !== undefined);
 
-    /** Is video currently is playing. */
-    let isPlaying = $state(false);
+
+    /** If video is currently paused. */
+    let isPaused = $state(true);
     const togglePlayback = () =>
     {
         if (video === null)
@@ -59,51 +50,81 @@
             return;
         }
 
-        if (isPlaying)
+        if (video.paused)
         {
-            video.pause();
-            isPlaying = false;
+            video.play();
         }
         else
         {
-            video.play();
-            isPlaying = true;
+            video.pause();
         }
     };
 
-    /** Is controls' progress bar currently being dragged. */
-    let isDragging = $state(false);
-    const updateProgressBar = (clientX: number) =>
+    let videoDuration = $state(0);
+    const videoDurationSafe = $derived(isNumber(videoDuration) ? videoDuration : 0);
+    let videoCurrentTime = $state(0);
+    const videoCurrentTimeSafe = $derived(isNumber(videoCurrentTime) ? videoCurrentTime : 0);
+    /** Number between 0 and 1 indicating progress on the video playback. */
+    const videoCurrentTimeProgress = $derived.by(() =>
     {
-        if (controlsProgressBar === null) return;
+        if (isNumber(videoCurrentTime) && isNumber(videoDuration)
+            && videoCurrentTime >= 0 && videoDuration > 0)
+        {
+            return videoCurrentTime / videoDuration;
+        }
 
-        const rect = controlsProgressBar.getBoundingClientRect();
+        return 0;
+    });
 
-        let offsetX = clientX - rect.left;
-        offsetX = Math.max(0, Math.min(offsetX, rect.width));
+    /** Is video currently muted. */
+    let isMuted = $state(false);
+    let videoVolume = $state(1); // this is also default volume
+    // svelte-ignore state_referenced_locally
+    let _previousVideoVolume = videoVolume; // get initial value
+    const toggleMute = () =>
+    {
+        if (video === null)
+        {
+            console.error('Cannot toggle video volume: video element is undefined.');
+            return;
+        }
 
-        const percentage = offsetX / rect.width;
-        videoCurrentTime = videoDuration * percentage;
+        if (video.muted)
+        {
+            video.muted = false;
+            if (videoVolume <= 0) videoVolume = _previousVideoVolume;
+        }
+        else
+        {
+            video.muted = true;
+            if (videoVolume > 0) _previousVideoVolume = videoVolume;
+            videoVolume = 0;
+        }
     };
 
     /** Is video element currently in fullscreen. */
     let isFullscreen = $state(false);
-    const toggleFullscreen = () =>
+    const toggleFullscreen = async () =>
     {
         console.debug(isFullscreen ? 'Exiting fullscreen...' : 'Entering fullscreen...');
 
         if (document.fullscreenElement === null)
         {
-            wrapper.requestFullscreen().catch((err) =>
+            try
             {
-                isFullscreen = false;
+                await wrapper.requestFullscreen();
+                isFullscreen = true;
+            }
+            catch (err)
+            {
                 console.error(err);
-            });
-
-            isFullscreen = true;
+                isFullscreen = false;
+            }
         }
         else
         {
+            // also async and can reject, but its fine?
+            // (possible) todo: handle error
             document.exitFullscreen();
             isFullscreen = false;
         }
@@ -164,43 +185,15 @@
             }
         }
     };
-
-    function windPlayback(t: number)
-    {
-        if (video !== null)
-        {
-            video.currentTime += t;
-        }
-        else
-        {
-            console.error('Cannot wind video playback: video element is undefined.');
-        }
-    }
 </script>
+<!-- #endregion -->
 
 
 
+<!-- #region HTML
+-->
 <svelte:window
     onkeydown={handleKeyboardInput}
-
-    onmousemove={(ev) =>
-    {
-        if (!isDragging) return;
-        updateProgressBar(ev.clientX);
-    }}
-    onmouseup={() =>
-    {
-        isDragging = false;
-    }}
-    ontouchmove={(ev) =>
-    {
-        if (!isDragging) return;
-        updateProgressBar(ev.touches[0].clientX);
-    }}
-    ontouchend={() =>
-    {
-        isDragging = false;
-    }}
 />
 
 <div
@@ -209,8 +202,14 @@
 >
     <video
         bind:this={video}
-        bind:duration={videoDuration}
+        // https://svelte.dev/docs/svelte/bind#audio
+        // two-way binds
         bind:currentTime={videoCurrentTime}
+        bind:paused={isPaused}
+        bind:volume={videoVolume}
+        bind:muted={isMuted}
+        // readonly binds
+        bind:duration={videoDuration}
     >
         <source {src} />
         Your browser does not support HTML5 video.
@@ -219,61 +218,81 @@
     {#if isControlsEnabled}
         <div class="controls">
             <button
-                class="button play"
-                title={isPlaying ? 'Pause' : 'Play'}
+                class="button"
+                title={isPaused ? 'Play' : 'Pause'}
                 onclick={togglePlayback}
             >
-                {#if isPlaying}
-                    {@html pause}
+                {#if isPaused}
+                    {@html icon_play}
                 {:else}
-                    {@html play}
+                    {@html icon_pause}
                 {/if}
             </button>
 
-            <div
-                class="progress"
-                style:--progress="{videoCurrentTimeProgress * 100}%"
-            >
-                <div class="progress-time">{formatVideoDuration(videoCurrentTime)}</div>
-                <button
-                    bind:this={controlsProgressBar}
-                    class="progress-bar"
-                    aria-label="progress bar"
-                    onmousedown={(ev) =>
-                    {
-                        isDragging = true;
-                        updateProgressBar(ev.clientX);
-                    }}
-                    ontouchstart={(ev) =>
-                    {
-                        isDragging = true;
-                        updateProgressBar(ev.touches[0].clientX);
-                    }}
-                >
-                    <div class="progress-bar-handle"></div>
-                </button>
-                <div class="progress-time">{formatVideoDuration(videoDuration)}</div>
+            <div class="progress-bar">
+                <div class="time">{formatVideoDuration(videoCurrentTimeSafe)}</div>
+                <div class="input">
+                    <InputRange
+                        value={videoCurrentTimeProgress}
+                        onupdate={(v) =>
+                        {
+                            if (video === null) return;
+                            video.currentTime = videoDurationSafe * v;
+                        }}
+                    />
+                </div>
+                <div class="time">{formatVideoDuration(videoDurationSafe)}</div>
             </div>
 
-            <!-- TODO: implement volume controls -->
+            <div class="volume">
+                <button
+                    class="button"
+                    title={isMuted ? 'Unmute' : 'Mute'}
+                    onclick={toggleMute}
+                >
+                    {#if isMuted}
+                        {@html icon_volume_off}
+                    {:else}
+                        {#if videoVolume > 0.5}
+                            {@html icon_volume_high}
+                        {:else if videoVolume <= 0.5 && videoVolume > 0}
+                            {@html icon_volume_low}
+                        {:else}
+                            {@html icon_volume_off}
+                        {/if}
+                    {/if}
+                </button>
+
+                <div class="volume-bar-wrapper">
+                    <div class="volume-bar">
+                        <InputRange
+                            bind:value={videoVolume}
+                            orientation="vertical"
+                        />
+                    </div>
+                </div>
+            </div>
 
             <button
-                class="button fullscreen"
+                class="button"
                 title={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
                 onclick={toggleFullscreen}
             >
                 {#if isFullscreen}
-                    {@html fullscreen_exit}
+                    {@html icon_fullscreen_exit}
                 {:else}
-                    {@html fullscreen_enter}
+                    {@html icon_fullscreen_enter}
                 {/if}
             </button>
         </div>
     {/if}
 </div>
+<!-- #endregion -->
 
 
 
+<!-- #region Styles
+-->
 <style>
     .__wrapper__ {
         position : relative;
@@ -314,6 +333,7 @@
         padding : .25rem;
 
         display : flex;
+        gap : .2rem;
         flex-wrap : nowrap;
         align-items : center;
 
@@ -324,7 +344,7 @@
         color : whitesmoke;
     }
 
-    .controls > .button {
+    .controls .button {
         height : 2rem;
         aspect-ratio : 1/1;
         padding : .33rem;
@@ -336,57 +356,62 @@
 
         color : currentColor;
     }
-    .controls > .button:hover {
+    .controls .button:hover {
         background-color : rgb(255 255 255 / .1);
     }
-    .controls > .button > :global(svg) {
+    .controls .button > :global(svg) {
         width : 100%;
         height : 100%;
 
         display : block;
     }
 
-    .controls > .progress {
+    .controls > .progress-bar {
         width : 100%;
-        padding : 0 .67rem;
+        padding : 0 .5rem;
 
         display : flex;
         align-items : center;
         gap : .67rem;
     }
-    .controls > .progress > .progress-time {
+    .controls > .progress-bar > .time {
         /* fix wierd alignment? */
         padding-bottom : 1px;
     }
-    .controls > .progress > .progress-bar {
+    .controls > .progress-bar > .input {
+        width : 100%;
+    }
+
+    .controls > .volume {
         position : relative;
 
-        width : 100%;
-        height : 4px;
-
-        background-color : currentColor;
-        background-image : linear-gradient(
-            to right,
-            brown var(--progress, 0),
-            transparent var(--progress, 0)
-        );
-        border : none;
         border-radius : 999em;
-        cursor : pointer;
-
-        color : inherit;
     }
-    .controls > .progress > .progress-bar > .progress-bar-handle {
+    .controls > .volume .button {
+        position : relative;
+        z-index : 1;
+    }
+    .controls > .volume .volume-bar-wrapper {
         position : absolute;
-        top : 50%;
-        left : var(--progress, 0);
-        transform : translate(-50%, -50%);
+        top : 20%;
+        left : 50%;
+        transform : translateY(-50%) rotate(-90deg);
+        transform-origin : center left;
+        padding : .4rem 1.1rem;
 
-        width : 12px;
-        aspect-ratio : 1/1;
+        display : none;
+    }
+    .controls > .volume:hover .volume-bar-wrapper {
+        display : initial;
+    }
+    .controls > .volume .volume-bar {
+        width : 100px;
+        height : 30px;
+        padding : 0 .9rem;
 
-        background-color : currentColor;
-        clip-path : circle(50%);
-        cursor : pointer;
+        background-color : rgb(8 8 8);
+        border : 1px solid rgb(255 255 255 / .3);
+        border-radius : 999em;
     }
 </style>
+<!-- #endregion -->
