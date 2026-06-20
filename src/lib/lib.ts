@@ -9,7 +9,7 @@ export function isNil(v: unknown): v is Nil
 
 export function formatVideoDuration(t: number): string
 {
-    if (!isNumber(t) || t < 0)
+    if (!Number.isFinite(t) || t < 0)
     {
         return '';
     }

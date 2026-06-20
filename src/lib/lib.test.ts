@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { formatVideoDuration, isNil, isNumber } from './lib';
+import { formatVideoDuration, isNil } from './lib';
 
 
 test.for([
