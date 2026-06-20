@@ -7,18 +7,6 @@ export function isNil(v: unknown): v is Nil
     return false;
 }
 
-/** Checks if value is valid finite number. */
-export function isNumber(n: unknown): n is number
-{
-    if (typeof n === 'number')
-    {
-        // Number.isFinite(NaN) => false
-        return Number.isFinite(n);
-    }
-
-    return false;
-}
-
 export function formatVideoDuration(t: number): string
 {
     if (!isNumber(t) || t < 0)

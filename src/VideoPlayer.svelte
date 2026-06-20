@@ -8,7 +8,7 @@
 <!-- #region Script
 -->
 <script lang="ts">
-    import { formatVideoDuration, isNumber } from './lib/lib';
+    import { formatVideoDuration } from './lib/lib';
 
     import InputRange from './InputRange.svelte';
 
@@ -63,13 +63,13 @@
     };
 
     let videoDuration = $state(0);
-    const videoDurationSafe = $derived(isNumber(videoDuration) ? videoDuration : 0);
+    const videoDurationSafe = $derived(Number.isFinite(videoDuration) ? videoDuration : 0);
     let videoCurrentTime = $state(0);
-    const videoCurrentTimeSafe = $derived(isNumber(videoCurrentTime) ? videoCurrentTime : 0);
+    const videoCurrentTimeSafe = $derived(Number.isFinite(videoCurrentTime) ? videoCurrentTime : 0);
     /** Number between 0 and 1 indicating progress on the video playback. */
     const videoCurrentTimeProgress = $derived.by(() =>
     {
-        if (isNumber(videoCurrentTime) && isNumber(videoDuration)
+        if (Number.isFinite(videoCurrentTime) && Number.isFinite(videoDuration)
             && videoCurrentTime >= 0 && videoDuration > 0)
         {
             return videoCurrentTime / videoDuration;
