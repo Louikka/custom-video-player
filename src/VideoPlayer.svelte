@@ -23,11 +23,13 @@
 
     interface Props {
         controls?: string;
+        preload?: 'none' | 'metadata' | 'auto' | '';
         src?: string;
     }
 
     let {
         controls,
+        preload = 'metadata',
         src,
     }: Props = $props();
 
@@ -210,6 +212,8 @@
         bind:muted={isMuted}
         // readonly binds
         bind:duration={videoDuration}
+
+        {preload}
     >
         <source {src} />
         Your browser does not support HTML5 video.
