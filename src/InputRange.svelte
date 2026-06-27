@@ -73,7 +73,7 @@
 
         class="custom-input-range"
 
-        aria-label="range input"
+        aria-label="video time progress bar"
 
         style:--value="{value * 100}%"
 
