@@ -8,6 +8,8 @@
 <!-- #region Script
 -->
 <script lang="ts">
+    import { fade } from 'svelte/transition';
+
     import { formatVideoDuration } from './lib/lib';
 
     import InputRange from './InputRange.svelte';
@@ -39,7 +41,20 @@
     /** Binding to the video element. */
     let video = $state<HTMLVideoElement | null>(null);
 
+    let _isMouseOverWrapper = $state(false);
+    let _showControlsOnLoad = $state(true);
+    let _isMouseOverControls = $state(false);
+    let _isControlsTimedOut = $state(false);
+    let _mouseMovementTimerId = 0;
+
     const isControlsEnabled = $derived(controls !== undefined);
+    const isControlsVisible = $derived.by(() =>
+    {
+        if (_showControlsOnLoad) return true;
+        if (_isMouseOverControls) return true;
+        if (_isControlsTimedOut) return false;
+        return true;
+    });
 
 
     /** If video is currently paused. */
@@ -85,20 +100,14 @@
     let _previousVideoVolume = videoVolume; // get initial value
     const toggleMute = () =>
     {
-        if (video === null)
+        if (isMuted)
         {
-            console.error('Cannot toggle video volume: video element is undefined.');
-            return;
-        }
-
-        if (video.muted)
-        {
-            video.muted = false;
+            isMuted = false;
             if (videoVolume <= 0) videoVolume = _previousVideoVolume;
         }
         else
         {
-            video.muted = true;
+            isMuted = true;
             if (videoVolume > 0) _previousVideoVolume = videoVolume;
             videoVolume = 0;
         }
@@ -187,6 +196,18 @@
             }
         }
     };
+    const handleMouseMove = (ev: MouseEvent) =>
+    {
+        if (_isMouseOverWrapper)
+        {
+            _isControlsTimedOut = false;
+            clearTimeout(_mouseMovementTimerId);
+            _mouseMovementTimerId = setTimeout(() =>
+            {
+                _isControlsTimedOut = true;
+            }, 2000); // timeout for hiding controls
+        }
+    };
 </script>
 <!-- #endregion -->
 
@@ -196,11 +217,18 @@
 -->
 <svelte:window
     onkeydown={handleKeyboardInput}
+    onmousemove={handleMouseMove}
 />
 
+<!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
     bind:this={wrapper}
     class="__wrapper__"
+
+    aria-label="video player"
+
+    onmouseenter={() => (_showControlsOnLoad = false, _isMouseOverWrapper = true)}
+    onmouseleave={() => _isMouseOverWrapper = false}
 >
     <video
         bind:this={video}
@@ -219,75 +247,87 @@
         Your browser does not support HTML5 video.
     </video>
 
-    {#if isControlsEnabled}
-        <div class="controls">
-            <button
-                class="button"
-                title={isPaused ? 'Play' : 'Pause'}
-                onclick={togglePlayback}
-            >
-                {#if isPaused}
-                    {@html icon_play}
-                {:else}
-                    {@html icon_pause}
-                {/if}
-            </button>
+    {#if isControlsEnabled && isControlsVisible}
+        <!-- svelte-ignore a11y_no_static_element_interactions -->
+        <div
+            class="controls-wrapper"
 
-            <div class="progress-bar">
-                <div class="time">{formatVideoDuration(videoCurrentTimeSafe)}</div>
-                <div class="input">
-                    <InputRange
-                        value={videoCurrentTimeProgress}
-                        onupdate={(v) =>
-                        {
-                            if (video === null) return;
-                            video.currentTime = videoDurationSafe * v;
-                        }}
-                    />
-                </div>
-                <div class="time">{formatVideoDuration(videoDurationSafe)}</div>
-            </div>
+            onmouseenter={() => _isMouseOverControls = true}
+            onmouseleave={() => _isMouseOverControls = false}
 
-            <div class="volume">
+            transition:fade={{
+                duration: 50,
+            }}
+        >
+            <div class="controls">
                 <button
                     class="button"
-                    title={isMuted ? 'Unmute' : 'Mute'}
-                    onclick={toggleMute}
+                    title={isPaused ? 'Play' : 'Pause'}
+                    onclick={togglePlayback}
                 >
-                    {#if isMuted}
-                        {@html icon_volume_off}
+                    {#if isPaused}
+                        {@html icon_play}
                     {:else}
-                        {#if videoVolume > 0.5}
-                            {@html icon_volume_high}
-                        {:else if videoVolume <= 0.5 && videoVolume > 0}
-                            {@html icon_volume_low}
-                        {:else}
-                            {@html icon_volume_off}
-                        {/if}
+                        {@html icon_pause}
                     {/if}
                 </button>
 
-                <div class="volume-bar-wrapper">
-                    <div class="volume-bar">
+                <div class="progress-bar">
+                    <div class="time">{formatVideoDuration(videoCurrentTimeSafe)}</div>
+                    <div class="input">
                         <InputRange
-                            bind:value={videoVolume}
-                            orientation="vertical"
+                            value={videoCurrentTimeProgress}
+                            onupdate={(v) =>
+                            {
+                                if (video === null) return;
+                                video.currentTime = videoDurationSafe * v;
+                            }}
                         />
                     </div>
+                    <div class="time">{formatVideoDuration(videoDurationSafe)}</div>
                 </div>
-            </div>
 
-            <button
-                class="button"
-                title={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
-                onclick={toggleFullscreen}
-            >
-                {#if isFullscreen}
-                    {@html icon_fullscreen_exit}
-                {:else}
-                    {@html icon_fullscreen_enter}
-                {/if}
-            </button>
+                <div class="volume">
+                    <button
+                        class="button"
+                        title={isMuted ? 'Unmute' : 'Mute'}
+                        onclick={toggleMute}
+                    >
+                        {#if isMuted}
+                            {@html icon_volume_off}
+                        {:else}
+                            {#if videoVolume > 0.5}
+                                {@html icon_volume_high}
+                            {:else if videoVolume <= 0.5 && videoVolume > 0}
+                                {@html icon_volume_low}
+                            {:else}
+                                {@html icon_volume_off}
+                            {/if}
+                        {/if}
+                    </button>
+
+                    <div class="volume-bar-wrapper">
+                        <div class="volume-bar">
+                            <InputRange
+                                bind:value={videoVolume}
+                                orientation="vertical"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <button
+                    class="button"
+                    title={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+                    onclick={toggleFullscreen}
+                >
+                    {#if isFullscreen}
+                        {@html icon_fullscreen_exit}
+                    {:else}
+                        {@html icon_fullscreen_enter}
+                    {/if}
+                </button>
+            </div>
         </div>
     {/if}
 </div>
@@ -326,14 +366,19 @@
         display : block;
     }
 
-    .controls {
+    .controls-wrapper {
         position : absolute;
-        bottom : 2%;
+        bottom : 0;
         left : 50%;
         transform : translateX(-50%);
 
-        width : 60%;
-        max-width : 60rem;
+        width : 70%;
+        max-width : 80rem;
+        padding : 1% 2%;
+    }
+
+    .controls {
+        width : 100%;
         padding : .25rem;
 
         display : flex;
