@@ -1,0 +1,82 @@
+<input type="range" min="0" max="1" step="any" />
+
+<style>
+    /* ==========================================================================
+   1. Base Reset & Accent Color (Modern Quick Fix)
+   ========================================================================== */
+    input[type="range"] {
+        -webkit-appearance: none;
+        /* Hides default browser styling in Chrome/Safari */
+        appearance: none;
+        width: 100%;
+        /* Adjust width as needed */
+        background: transparent;
+        /* Allows completely custom background styles */
+        cursor: pointer;
+    }
+
+    /* Removes default focus outlines, replace with your own accessible focus styles */
+    input[type="range"]:focus {
+        outline: none;
+    }
+
+    /* ==========================================================================
+   2. Track Styling (The Bar)
+   ========================================================================== */
+
+    /* Chrome, Safari, Opera, and Edge Chromium */
+    input[type="range"]::-webkit-slider-runnable-track {
+        width: 100%;
+        height: 8px;
+        background: #ccc;
+        border-radius: 4px;
+    }
+
+    /* Firefox */
+    input[type="range"]::-moz-range-track {
+        width: 100%;
+        height: 8px;
+        background: #ccc;
+        border-radius: 4px;
+    }
+
+    /* ==========================================================================
+   3. Thumb Styling (The Draggable Knob)
+   ========================================================================== */
+
+    /* Chrome, Safari, Opera, and Edge Chromium */
+    input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        /* Overrides default system styles */
+        appearance: none;
+        margin-top: -6px;
+        /* Centers thumb vertically over track in WebKit */
+        height: 20px;
+        width: 20px;
+        border-radius: 50%;
+        background: #007bff;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        transition: background-color 0.2s ease;
+    }
+
+    /* Firefox */
+    input[type="range"]::-moz-range-thumb {
+        border: none;
+        /* Removes default Firefox border */
+        height: 20px;
+        width: 20px;
+        border-radius: 50%;
+        background: #007bff;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        transition: background-color 0.2s ease;
+    }
+
+    /* Hover & Active States */
+    input[type="range"]::-webkit-slider-thumb:hover {
+        background: #0056b3;
+    }
+
+    input[type="range"]::-moz-range-thumb:hover {
+        background: #0056b3;
+    }
+</style>
