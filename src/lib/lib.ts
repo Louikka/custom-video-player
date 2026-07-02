@@ -48,5 +48,5 @@ export function isTimeInTimeframe(t: number, frame: { start?: number, end?: numb
     if (!Number.isFinite(frame.start) || frame.start < 0) frame.start = 0;
     if (Number.isNaN(frame.end) || frame.end < frame.start) frame.end = frame.start;
 
-    return t >= frame.start && t <= frame.end;
+    return t >= frame.start && t < frame.end;
 }
