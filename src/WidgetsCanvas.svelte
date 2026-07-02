@@ -21,6 +21,19 @@
 
     onMount(() =>
     {
+        const styleDeclarations = script.declarations?.filter(decl => decl.type === 'DECL_STYLE');
+        if (styleDeclarations !== undefined)
+        {
+            const styles = document.createElement('style');
+
+            for (const decl of styleDeclarations)
+            {
+                styles.textContent += `.__style_decl-${CANVAS_UID}-${decl.name}__ {${decl.style}}`;
+            }
+
+            document.head.append(styles);
+        }
+
         // set starting point if available
         if (script.declarations !== undefined)
         {
@@ -67,8 +80,10 @@
     {#if isTimeInTimeframe(videoCurrentTime, { start: w.display.show, end: w.display.hide })}
 
         {#if w.type === 'WIDG_BUTTON'}
+            {@const styleClasses = w.use_style_decl?.map(declName => `__style_decl-${CANVAS_UID}-${declName}__`).join(' ') ?? ''}
+
             <button
-                class="__ivc-widget-{CANVAS_UID}__ {w.use_style_decl}"
+                class="__widget-{CANVAS_UID}__ {styleClasses}"
 
                 style={w.style}
 
@@ -82,3 +97,7 @@
 
     {/if}
 {/each}
+
+
+
+<style></style>

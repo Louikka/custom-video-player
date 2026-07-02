@@ -1,7 +1,7 @@
 <svelte:options
     customElement={{
         tag: 'video-player',
-        //shadow: 'none',
+        shadow: 'none',
     }}
 />
 
