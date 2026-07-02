@@ -11,8 +11,10 @@
     import { fade } from 'svelte/transition';
 
     import { formatVideoDuration } from './lib/lib';
+    import { parseScript } from './specs/helpers';
 
     import InputRange from './InputRange.svelte';
+    import WidgetsCanvas from './WidgetsCanvas.svelte';
 
     import icon_play from './assets/icons/videojs-v10/default/play.svg?raw';
     import icon_pause from './assets/icons/videojs-v10/default/pause.svg?raw';
@@ -27,12 +29,14 @@
         controls?: string;
         preload?: 'none' | 'metadata' | 'auto' | '';
         src?: string;
+        script?: string;
     }
 
     let {
         controls,
         preload = 'metadata',
         src,
+        script,
     }: Props = $props();
 
 
@@ -54,6 +58,24 @@
         if (_isMouseOverControls) return true;
         if (_isControlsTimedOut) return false;
         return true;
+    });
+
+    const parsedScript = $derived.by(() =>
+    {
+        if (script === undefined) return null;
+
+        let parsed = null;
+
+        try
+        {
+            parsed = parseScript(script);
+        }
+        catch (err)
+        {
+            console.error(err);
+        }
+
+        return parsed;
     });
 
 
@@ -207,6 +229,11 @@
                 _isControlsTimedOut = true;
             }, 2000); // timeout for hiding controls
         }
+        else
+        {
+            clearTimeout(_mouseMovementTimerId);
+            _isControlsTimedOut = true;
+        }
     };
 </script>
 <!-- #endregion -->
@@ -247,6 +274,10 @@
         Your browser does not support HTML5 video.
     </video>
 
+    {#if parsedScript !== null}
+        <WidgetsCanvas bind:videoCurrentTime script={parsedScript} />
+    {/if}
+
     {#if isControlsEnabled && isControlsVisible}
         <!-- svelte-ignore a11y_no_static_element_interactions -->
         <div
@@ -256,7 +287,7 @@
             onmouseleave={() => _isMouseOverControls = false}
 
             transition:fade={{
-                duration: 50,
+                duration: 90,
             }}
         >
             <div class="controls">

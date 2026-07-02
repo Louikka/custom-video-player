@@ -7,6 +7,11 @@ export function isNil(v: unknown): v is Nil
     return false;
 }
 
+
+/**
+ * Formats duration as `hh:mm:ss`.
+ * @param t duration in seconds.
+ */
 export function formatVideoDuration(t: number): string
 {
     if (!Number.isFinite(t) || t < 0)
@@ -32,4 +37,16 @@ export function formatVideoDuration(t: number): string
     }
 
     return s;
+}
+
+
+export function isTimeInTimeframe(t: number, frame: { start?: number, end?: number }): boolean
+{
+    frame.start ??= 0;
+    frame.end ??= Infinity;
+
+    if (!Number.isFinite(frame.start) || frame.start < 0) frame.start = 0;
+    if (Number.isNaN(frame.end) || frame.end < frame.start) frame.end = frame.start;
+
+    return t >= frame.start && t <= frame.end;
 }
