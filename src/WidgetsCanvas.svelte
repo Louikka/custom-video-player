@@ -2,7 +2,7 @@
     import { onMount } from 'svelte';
     import { isTimeInTimeframe } from './lib/lib';
     import type { Action, Script } from './specs/widgets';
-    import { isStartLabel } from './specs/helpers';
+    import { isStartLabel, shouldDisplayWidget } from './specs/helpers';
 
 
     interface Props {
@@ -77,7 +77,7 @@
 
 
 {#each script.widgets as w}
-    {#if isTimeInTimeframe(videoCurrentTime, { start: w.display.show, end: w.display.hide })}
+    {#if shouldDisplayWidget(videoCurrentTime, w.display)}
 
         {#if w.type === 'WIDG_BUTTON'}
             {@const styleClasses = w.use_style_decl?.map(declName => `__style_decl-${CANVAS_UID}-${declName}__`).join(' ') ?? ''}

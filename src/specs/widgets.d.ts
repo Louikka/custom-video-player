@@ -44,7 +44,7 @@ export interface ActionAssignVariable {
 
 export interface WidgetTemplate {
     position: Position;
-    display: DisplayTiming;
+    display: DisplayTiming | Array<DisplayTiming>;
 
     /** Any valid CSS styles. */
     style?: string;
