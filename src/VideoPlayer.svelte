@@ -10,11 +10,11 @@
 <script lang="ts">
     import { fade } from 'svelte/transition';
 
-    import { formatVideoDuration } from './lib/lib';
-    import { parseScript } from './specs/helpers';
+    import { formatMediaPreload, formatVideoDuration, getMediaTimeRatio, togglePlayback } from './lib/lib';
+    import { parseScript } from './widgets/helpers';
 
-    import InputRange from './InputRange.svelte';
-    import WidgetsCanvas from './WidgetsCanvas.svelte';
+    import InputRange from './lib/InputRange.svelte';
+    import WidgetsCanvas from './widgets/WidgetsCanvas.svelte';
 
     import icon_play from './assets/icons/videojs-v10/default/play.svg?raw';
     import icon_pause from './assets/icons/videojs-v10/default/pause.svg?raw';
@@ -26,15 +26,18 @@
 
 
     interface Props {
-        controls?: string;
-        preload?: 'none' | 'metadata' | 'auto' | '';
+        // native api
+        controls?: string | 'hideprogress';
+        preload?: string;
         src?: string;
+
+        // custom
         script?: string;
     }
 
     let {
         controls,
-        preload = 'metadata',
+        preload = formatMediaPreload(),
         src,
         script,
     }: Props = $props();
@@ -43,7 +46,7 @@
     /** Binding to the wrapper element. */
     let wrapper: HTMLElement;
     /** Binding to the video element. */
-    let video = $state<HTMLVideoElement | null>(null);
+    let video: HTMLVideoElement;
 
     let _isMouseOverWrapper = $state(false);
     let _showControlsOnLoad = $state(true);
@@ -59,6 +62,12 @@
         if (_isControlsTimedOut) return false;
         return true;
     });
+
+    /**
+     * If `true`, then all progress-related functions (such as actual progress
+     * bar of fast-forward key bindings) should be disabled.
+     */
+    const isProgressDisabled = $derived(controls === 'hideprogress');
 
     const parsedScript = $derived.by(() =>
     {
@@ -81,56 +90,28 @@
 
     /** If video is currently paused. */
     let isPaused = $state(true);
-    const togglePlayback = () =>
-    {
-        if (video === null)
-        {
-            console.error('Cannot toggle video playback: video element is undefined.');
-            return;
-        }
-
-        if (video.paused)
-        {
-            video.play();
-        }
-        else
-        {
-            video.pause();
-        }
-    };
 
     let videoDuration = $state(0);
     const videoDurationSafe = $derived(Number.isFinite(videoDuration) ? videoDuration : 0);
     let videoCurrentTime = $state(0);
-    const videoCurrentTimeSafe = $derived(Number.isFinite(videoCurrentTime) ? videoCurrentTime : 0);
+    const videoCurrentTimeSafe = $derived(Number.isNaN(videoCurrentTime) ? videoCurrentTime : 0);
     /** Number between 0 and 1 indicating progress on the video playback. */
-    const videoCurrentTimeProgress = $derived.by(() =>
-    {
-        if (Number.isFinite(videoCurrentTime) && Number.isFinite(videoDuration)
-            && videoCurrentTime >= 0 && videoDuration > 0)
-        {
-            return videoCurrentTime / videoDuration;
-        }
+    const videoCurrentTimeProgress = $derived(getMediaTimeRatio(videoCurrentTime, videoDuration));
 
-        return 0;
-    });
-
-    /** Is video currently muted. */
-    let isMuted = $state(false);
     let videoVolume = $state(1); // this is also default volume
+    /** Is video currently muted. */
+    let isMuted = $derived(videoVolume <= 0);
     // svelte-ignore state_referenced_locally
     let _previousVideoVolume = videoVolume; // get initial value
     const toggleMute = () =>
     {
         if (isMuted)
         {
-            isMuted = false;
-            if (videoVolume <= 0) videoVolume = _previousVideoVolume;
+            videoVolume = _previousVideoVolume;
         }
         else
         {
-            isMuted = true;
-            if (videoVolume > 0) _previousVideoVolume = videoVolume;
+            _previousVideoVolume = videoVolume;
             videoVolume = 0;
         }
     };
@@ -171,21 +152,31 @@
         {
             case ' ':
             {
-                togglePlayback();
+                togglePlayback(video);
                 break;
             }
 
             case 'ArrowLeft':
             {
                 ev.preventDefault();
-                video.currentTime -= 5;
+
+                if (!isProgressDisabled)
+                {
+                    video.currentTime -= 5;
+                }
+
                 break;
             }
 
             case 'ArrowRight':
             {
                 ev.preventDefault();
-                video.currentTime += 5;
+
+                if (!isProgressDisabled)
+                {
+                    video.currentTime += 5;
+                }
+
                 break;
             }
 
@@ -268,7 +259,7 @@
         // readonly binds
         bind:duration={videoDuration}
 
-        {preload}
+        preload={formatMediaPreload(preload)}
     >
         <source {src} />
         Your browser does not support HTML5 video.
@@ -294,7 +285,7 @@
                 <button
                     class="button"
                     title={isPaused ? 'Play' : 'Pause'}
-                    onclick={togglePlayback}
+                    onclick={() => togglePlayback(video) }
                 >
                     {#if isPaused}
                         {@html icon_play}
@@ -304,18 +295,28 @@
                 </button>
 
                 <div class="progress-bar">
-                    <div class="time">{formatVideoDuration(videoCurrentTimeSafe)}</div>
-                    <div class="input">
-                        <InputRange
-                            value={videoCurrentTimeProgress}
-                            onupdate={(v) =>
-                            {
-                                if (video === null) return;
-                                video.currentTime = videoDurationSafe * v;
-                            }}
-                        />
-                    </div>
-                    <div class="time">{formatVideoDuration(videoDurationSafe)}</div>
+                    {#if isProgressDisabled}
+                        <div class="time">
+                            {formatVideoDuration(videoCurrentTimeSafe)}
+                            {#if Number.isFinite(videoDurationSafe)}
+                                <span>/ {formatVideoDuration(videoDurationSafe)}</span>
+                            {/if}
+                        </div>
+                        <div style="flex-grow:1"></div>
+                    {:else}
+                        <div class="time">{formatVideoDuration(videoCurrentTimeSafe)}</div>
+                        <div class="input">
+                            <InputRange
+                                value={videoCurrentTimeProgress}
+                                onupdate={(v) =>
+                                {
+                                    if (video === null) return;
+                                    video.currentTime = videoDurationSafe * v;
+                                }}
+                            />
+                        </div>
+                        <div class="time">{formatVideoDuration(videoDurationSafe)}</div>
+                    {/if}
                 </div>
 
                 <div class="volume">
@@ -324,16 +325,12 @@
                         title={isMuted ? 'Unmute' : 'Mute'}
                         onclick={toggleMute}
                     >
-                        {#if isMuted}
-                            {@html icon_volume_off}
+                        {#if videoVolume > 0.5}
+                            {@html icon_volume_high}
+                        {:else if videoVolume < 0.5 && videoVolume > 0}
+                            {@html icon_volume_low}
                         {:else}
-                            {#if videoVolume > 0.5}
-                                {@html icon_volume_high}
-                            {:else if videoVolume <= 0.5 && videoVolume > 0}
-                                {@html icon_volume_low}
-                            {:else}
-                                {@html icon_volume_off}
-                            {/if}
+                            {@html icon_volume_off}
                         {/if}
                     </button>
 

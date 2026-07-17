@@ -50,3 +50,47 @@ export function isTimeInTimeframe(t: number, frame: { start?: number, end?: numb
 
     return t >= frame.start && t < frame.end;
 }
+
+
+export type MediaPreloadValue = '' | 'none' | 'metadata' | 'auto';
+
+/**
+ * Formats Media `preload` attribute value to match one of the permitted `""`,
+ * `"none"`, `"metadata"` or `"auto"`. If `val` not matches, returns default
+ * `"metadata"`.
+ */
+export function formatMediaPreload(val?: string): MediaPreloadValue
+{
+    if (val === '' || val === 'none' || val === 'metadata' || val === 'auto')
+    {
+        return val;
+    }
+
+    return 'metadata';
+}
+
+
+export function togglePlayback(e: HTMLMediaElement)
+{
+    if (e.paused)
+    {
+        e.play();
+    }
+    else
+    {
+        e.pause();
+    }
+}
+
+
+/** Returns number in range 0 to 1. */
+export function getMediaTimeRatio(currentTime: number, duration: number): number
+{
+    if (Number.isFinite(currentTime) && Number.isFinite(duration)
+        && currentTime >= 0 && duration > 0)
+    {
+        return currentTime / duration;
+    }
+
+    return 0;
+}

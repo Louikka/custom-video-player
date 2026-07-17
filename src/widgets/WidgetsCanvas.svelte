@@ -1,8 +1,7 @@
 <script lang="ts">
     import { onMount } from 'svelte';
-    import { isTimeInTimeframe } from './lib/lib';
-    import type { Action, Script } from './specs/widgets';
-    import { isStartLabel, shouldDisplayWidget } from './specs/helpers';
+    import type { Action, Script } from './widgets';
+    import { isStartLabel, shouldDisplayWidget } from './helpers';
 
 
     interface Props {
