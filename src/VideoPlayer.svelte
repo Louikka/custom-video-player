@@ -94,7 +94,7 @@
     let videoDuration = $state(0);
     const videoDurationSafe = $derived(Number.isFinite(videoDuration) ? videoDuration : 0);
     let videoCurrentTime = $state(0);
-    const videoCurrentTimeSafe = $derived(Number.isNaN(videoCurrentTime) ? videoCurrentTime : 0);
+    const videoCurrentTimeSafe = $derived(Number.isNaN(videoCurrentTime) ? 0 : videoCurrentTime);
     /** Number between 0 and 1 indicating progress on the video playback. */
     const videoCurrentTimeProgress = $derived(getMediaTimeRatio(videoCurrentTime, videoDuration));
 
@@ -484,7 +484,7 @@
     .controls > .volume .volume-bar {
         width : 100px;
         height : 30px;
-        padding : 0 .9rem;
+        padding : 0 1rem;
 
         background-color : rgb(8 8 8);
         border : 1px solid rgb(255 255 255 / .3);
