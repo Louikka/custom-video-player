@@ -77,10 +77,19 @@
 
 {#each script.widgets as w}
     {#if shouldDisplayWidget(videoCurrentTime, w.display)}
+        {@const styleClasses = w.use_style_decl?.map(declName => `__style_decl-${CANVAS_UID}-${declName}__`).join(' ') ?? ''}
 
-        {#if w.type === 'WIDG_BUTTON'}
-            {@const styleClasses = w.use_style_decl?.map(declName => `__style_decl-${CANVAS_UID}-${declName}__`).join(' ') ?? ''}
+        {#if w.type === 'WIDG_TEXT'}
+            <span
+                class="__widget-{CANVAS_UID}__ {styleClasses}"
 
+                style={w.style}
+
+                style:position="absolute"
+                style:top={(w.position.y * 100) + '%'}
+                style:left={(w.position.x * 100) + '%'}
+            >{w.text}</span>
+        {:else if w.type === 'WIDG_BUTTON'}
             <button
                 class="__widget-{CANVAS_UID}__ {styleClasses}"
 
@@ -93,7 +102,6 @@
                 onclick={() => executeWidgetActions(w.onclick ?? []) }
             >{w.text}</button>
         {/if}
-
     {/if}
 {/each}
 

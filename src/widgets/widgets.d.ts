@@ -15,7 +15,7 @@ export interface DisplayTiming {
     hide: Timestamp;
 }
 
-// ???
+// Number from 0 to 1.
 export interface Position {
     x: number;
     y: number;
@@ -91,7 +91,13 @@ export interface LabelDeclaration {
 
 
 
-export type Widget = WidgetButton;
+export type Widget = WidgetText | WidgetButton;
+
+export interface WidgetText extends WidgetTemplate {
+    type: 'WIDG_TEXT';
+    name?: string;
+    text?: string;
+}
 
 export interface WidgetButton extends WidgetTemplate {
     type: 'WIDG_BUTTON';
