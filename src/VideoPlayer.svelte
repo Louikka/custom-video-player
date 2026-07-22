@@ -10,8 +10,9 @@
 <script lang="ts">
     import { fade } from 'svelte/transition';
 
-    import { formatMediaPreload, formatVideoDuration, getMediaTimeRatio, togglePlayback } from './lib/lib';
+    import { formatMediaPreload, formatVideoDuration, getMediaTimeRatio, toggleFullscreen, togglePlayback } from './lib/lib';
     import { parseScript } from './widgets/helpers';
+    import type { Script } from './widgets/widgets';
 
     import InputRange from './lib/InputRange.svelte';
     import WidgetsCanvas from './widgets/WidgetsCanvas.svelte';
@@ -32,7 +33,7 @@
         src?: string;
 
         // custom
-        script?: string;
+        script?: string | Script;
     }
 
     let {
@@ -72,19 +73,25 @@
     const parsedScript = $derived.by(() =>
     {
         if (script === undefined) return null;
-
-        let parsed = null;
-
-        try
+        if (typeof script === 'string')
         {
-            parsed = parseScript(script);
-        }
-        catch (err)
-        {
-            console.error(err);
-        }
+            let parsed = null;
 
-        return parsed;
+            try
+            {
+                parsed = parseScript(script);
+            }
+            catch (err)
+            {
+                console.error(err);
+            }
+
+            return parsed;
+        }
+        else
+        {
+            return script;
+        }
     });
 
 
@@ -118,31 +125,6 @@
 
     /** Is video element currently in fullscreen. */
     let isFullscreen = $state(false);
-    const toggleFullscreen = async () =>
-    {
-        console.debug(isFullscreen ? 'Exiting fullscreen...' : 'Entering fullscreen...');
-
-        if (document.fullscreenElement === null)
-        {
-            try
-            {
-                await wrapper.requestFullscreen();
-                isFullscreen = true;
-            }
-            catch (err)
-            {
-                console.error(err);
-                isFullscreen = false;
-            }
-        }
-        else
-        {
-            // also async and can reject, but its fine?
-            // (possible) todo: handle error
-            document.exitFullscreen();
-            isFullscreen = false;
-        }
-    };
 
     const handleKeyboardInput = (ev: KeyboardEvent) =>
     {
@@ -197,7 +179,7 @@
             case 'f':
             case 'F':
             {
-                toggleFullscreen();
+                toggleFullscreen(wrapper).then(v => isFullscreen = v);
                 break;
             }
 
@@ -347,7 +329,7 @@
                 <button
                     class="button"
                     title={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
-                    onclick={toggleFullscreen}
+                    onclick={async () => isFullscreen = await toggleFullscreen(wrapper) }
                 >
                     {#if isFullscreen}
                         {@html icon_fullscreen_exit}

@@ -82,6 +82,30 @@ export function togglePlayback(e: HTMLMediaElement)
     }
 }
 
+export async function toggleFullscreen(e: HTMLElement): Promise<boolean>
+{
+    if (document.fullscreenElement === null)
+    {
+        try
+        {
+            await e.requestFullscreen();
+            return true;
+        }
+        catch (err)
+        {
+            console.error(err);
+            return false;
+        }
+    }
+    else
+    {
+        // also async and can reject, but its fine?
+        // (possible) todo: handle error
+        await document.exitFullscreen();
+        return false;
+    }
+}
+
 
 /** Returns number in range 0 to 1. */
 export function getMediaTimeRatio(currentTime: number, duration: number): number
