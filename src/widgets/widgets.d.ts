@@ -32,8 +32,18 @@ export interface ActionJump {
 
 export interface ActionAssignVariable {
     type: 'ACT_VARIABLE_ASSIGNMENT';
-    variable_name: string;
+    /** Variable name. */
+    name: string;
     expression: Expression;
+}
+
+export type Effect = EffectFade;
+
+export interface EffectFade {
+    type: 'EFF_FADE';
+    on: 'show' | 'hide' | 'both';
+    /** In milliseconds. */
+    timing: number;
 }
 
 // #endregion
@@ -49,6 +59,8 @@ export interface WidgetTemplate {
     /** Any valid CSS styles. */
     style?: string;
     use_style_decl?: Array<StyleDeclaration['name']>;
+
+    effects?: Array<Effect>;
 }
 
 // #endregion
@@ -71,6 +83,7 @@ export type Declaration = VariableDeclaration | StyleDeclaration | LabelDeclarat
 
 export interface VariableDeclaration {
     type: 'DECL_VARIABLE';
+    /** Variable name. */
     name: string;
     /** Expression which value used as initial. If omitted, variable's value defaults to `null`. */
     initial_value?: Expression;
@@ -85,6 +98,7 @@ export interface StyleDeclaration {
 
 export interface LabelDeclaration {
     type: 'DECL_LABEL';
+    /** Name should be unique. Label named "start" will set media playback to that time. */
     name: string;
     timestamp: Timestamp;
 }
@@ -95,13 +109,16 @@ export type Widget = WidgetText | WidgetButton;
 
 export interface WidgetText extends WidgetTemplate {
     type: 'WIDG_TEXT';
-    name?: string;
-    text?: string;
+    text: string;
+}
+
+export interface WidgetImage extends WidgetTemplate {
+    type: 'WIDG_IMAGE';
+    src: string;
 }
 
 export interface WidgetButton extends WidgetTemplate {
     type: 'WIDG_BUTTON';
-    name?: string;
     text?: string;
     onclick?: Array<Action>;
 }
