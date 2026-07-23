@@ -107,7 +107,7 @@ export async function toggleFullscreen(e: HTMLElement): Promise<boolean>
 }
 
 
-/** Returns number in range 0 to 1. */
+/** Returns number in range 0 to 1, which indicates current progress. */
 export function getMediaTimeRatio(currentTime: number, duration: number): number
 {
     if (Number.isFinite(currentTime) && Number.isFinite(duration)
