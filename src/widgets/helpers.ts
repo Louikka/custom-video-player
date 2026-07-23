@@ -1,5 +1,48 @@
 import { isTimeInTimeframe } from '../lib/lib';
-import type { Declaration, LabelDeclaration, Script, WidgetTemplate } from './widgets';
+import type { Declaration, LabelDeclaration, Script, StyleDeclaration, VariableDeclaration, WidgetTemplate } from './widgets';
+
+
+export function parseScript(script: string | Script | undefined): Script | null
+{
+    let parsed = null;
+
+    if (typeof script === 'string')
+    {
+        try
+        {
+            parsed = JSON.parse(script) as Script;
+        }
+        catch (err)
+        {
+            console.error(err);
+        }
+    }
+    else if (typeof script === 'object' && script !== null)
+    {
+        parsed = script;
+    }
+
+    return parsed;
+}
+
+export function checkScript(script: Script)
+{
+    if (script.declarations !== undefined)
+    {
+        // ensure that all labels have unique names
+        const names = new Set<LabelDeclaration['name']>();
+        const labels = script.declarations.filter(o => o.type === 'DECL_LABEL');
+        for (const o of labels)
+        {
+            if (names.has(o.name))
+            {
+                throw new Error(`Script has duplicated label declarations ("${o.name}").`);
+            }
+
+            names.add(o.name);
+        }
+    }
+}
 
 
 export function isStartLabel(o: Declaration): o is LabelDeclaration
@@ -26,11 +69,4 @@ export function shouldDisplayWidget(t: number, display: WidgetTemplate['display'
     }
 
     return displayTimings.some(dt => isTimeInTimeframe(t, { start: dt.show, end: dt.hide }))
-}
-
-
-export function parseScript(s: string): Script
-{
-    let script = JSON.parse(s) as Script;
-    return script;
 }

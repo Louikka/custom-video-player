@@ -70,29 +70,7 @@
      */
     const isProgressDisabled = $derived(controls === 'hideprogress');
 
-    const parsedScript = $derived.by(() =>
-    {
-        if (script === undefined) return null;
-        if (typeof script === 'string')
-        {
-            let parsed = null;
-
-            try
-            {
-                parsed = parseScript(script);
-            }
-            catch (err)
-            {
-                console.error(err);
-            }
-
-            return parsed;
-        }
-        else
-        {
-            return script;
-        }
-    });
+    const parsedScript = $derived(parseScript(script));
 
 
     /** If video is currently paused. */
@@ -251,17 +229,16 @@
         <WidgetsCanvas bind:videoCurrentTime script={parsedScript} />
     {/if}
 
-    {#if isControlsEnabled && isControlsVisible}
+    {#if isControlsEnabled}
         <!-- svelte-ignore a11y_no_static_element_interactions -->
         <div
             class="controls-wrapper"
 
+            style:visibility={isControlsVisible ? 'visible' : 'hidden'}
+            style:opacity={isControlsVisible ? '1' : '0'}
+
             onmouseenter={() => _isMouseOverControls = true}
             onmouseleave={() => _isMouseOverControls = false}
-
-            transition:fade={{
-                duration: 90,
-            }}
         >
             <div class="controls">
                 <button
@@ -385,6 +362,10 @@
         width : 70%;
         max-width : 80rem;
         padding : 1% 2%;
+
+        transition :
+            visibility .1s ease,
+            opacity .1s ease;
     }
 
     .controls {

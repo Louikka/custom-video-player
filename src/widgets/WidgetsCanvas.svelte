@@ -1,7 +1,7 @@
 <script lang="ts">
     import { onMount } from 'svelte';
     import type { Action, Script } from './widgets';
-    import { isStartLabel, shouldDisplayWidget } from './helpers';
+    import { checkScript, isStartLabel, shouldDisplayWidget } from './helpers';
 
 
     interface Props {
@@ -15,6 +15,11 @@
     }: Props = $props();
 
 
+    $effect(() =>
+    {
+        checkScript(script);
+    });
+
     export const CANVAS_UID = $props.id();
 
 
@@ -23,14 +28,14 @@
         const styleDeclarations = script.declarations?.filter(decl => decl.type === 'DECL_STYLE');
         if (styleDeclarations !== undefined)
         {
-            const styles = document.createElement('style');
+            const style = document.createElement('style');
 
             for (const decl of styleDeclarations)
             {
-                styles.textContent += `.__style_decl-${CANVAS_UID}-${decl.name}__ {${decl.style}}`;
+                style.textContent += `.__style_decl-${CANVAS_UID}-${decl.name}__ {${decl.style}}`;
             }
 
-            document.head.append(styles);
+            document.head.append(style);
         }
 
         // set starting point if available
@@ -77,7 +82,10 @@
 
 {#each script.widgets as w}
     {#if shouldDisplayWidget(videoCurrentTime, w.display)}
-        {@const styleClasses = w.use_style_decl?.map(declName => `__style_decl-${CANVAS_UID}-${declName}__`).join(' ') ?? ''}
+        {@const styleClasses =
+            w.use_style_decl?.map(declName => `__style_decl-${CANVAS_UID}-${declName}__`).join(' ') ?? ''}
+
+        <!-- TODO: implement widgets effects -->
 
         {#if w.type === 'WIDG_TEXT'}
             <span
