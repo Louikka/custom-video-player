@@ -1,7 +1,8 @@
 <script lang="ts">
     import { onMount } from 'svelte';
     import type { Action, Script } from './widgets';
-    import { checkScript, isStartLabel, shouldDisplayWidget } from './helpers';
+    import { checkScript, getFadeTimingFunction, isStartLabel, shouldDisplayWidget } from './helpers';
+    import { fade, type FadeParams } from 'svelte/transition';
 
 
     interface Props {
@@ -82,10 +83,14 @@
 
 {#each script.widgets as w}
     {#if shouldDisplayWidget(videoCurrentTime, w.display)}
-        {@const styleClasses =
+        {const styleClasses =
             w.use_style_decl?.map(declName => `__style_decl-${CANVAS_UID}-${declName}__`).join(' ') ?? ''}
 
-        <!-- TODO: implement widgets effects -->
+        {const effFadeOptions: FadeParams = {
+            duration: w.effects?.fade?.duration ?? 0,
+            delay: w.effects?.fade?.delay ?? 0,
+            easing: getFadeTimingFunction(w.effects?.fade?.timing_func ?? 'linear'),
+        }}
 
         {#if w.type === 'WIDG_TEXT'}
             <span
@@ -96,6 +101,8 @@
                 style:position="absolute"
                 style:top={(w.position.y * 100) + '%'}
                 style:left={(w.position.x * 100) + '%'}
+
+                transition:fade|global={effFadeOptions}
             >{w.text}</span>
         {:else if w.type === 'WIDG_BUTTON'}
             <button
@@ -107,6 +114,8 @@
                 style:top={(w.position.y * 100) + '%'}
                 style:left={(w.position.x * 100) + '%'}
 
+                transition:fade={effFadeOptions}
+
                 onclick={() => executeWidgetActions(w.onclick ?? []) }
             >{w.text}</button>
         {/if}
@@ -115,4 +124,8 @@
 
 
 
-<style></style>
+<style>
+    button:not(:disabled) {
+        cursor : pointer;
+    }
+</style>

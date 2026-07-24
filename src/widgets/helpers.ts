@@ -1,5 +1,6 @@
+import { linear } from 'svelte/easing';
 import { isTimeInTimeframe } from '../lib/lib';
-import type { Declaration, LabelDeclaration, Script, StyleDeclaration, VariableDeclaration, WidgetTemplate } from './widgets';
+import type { Declaration, EffectFadeTimingFunctions, LabelDeclaration, Script, WidgetTemplate } from './widgets';
 
 
 export function parseScript(script: string | Script | undefined): Script | null
@@ -45,12 +46,6 @@ export function checkScript(script: Script)
 }
 
 
-export function isStartLabel(o: Declaration): o is LabelDeclaration
-{
-    return o.type === 'DECL_LABEL' && o.name.toUpperCase() === 'START';
-}
-
-
 /**
  * @param t current time in seconds.
  * @param display `WidgetTemplate.display`.
@@ -69,4 +64,26 @@ export function shouldDisplayWidget(t: number, display: WidgetTemplate['display'
     }
 
     return displayTimings.some(dt => isTimeInTimeframe(t, { start: dt.show, end: dt.hide }))
+}
+
+
+export function isStartLabel(o: Declaration): o is LabelDeclaration
+{
+    return o.type === 'DECL_LABEL' && o.name.toUpperCase() === 'START';
+}
+
+export function getFadeTimingFunction(tf: EffectFadeTimingFunctions)
+{
+    switch (tf)
+    {
+        case 'linear':
+        {
+            return linear;
+        }
+
+        default:
+        {
+            throw new Error(`Unknown fade effect timing function "${tf}".`);
+        }
+    }
 }

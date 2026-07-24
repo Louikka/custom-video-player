@@ -21,6 +21,9 @@ export interface Position {
     y: number;
 }
 
+// TODO: define more functions (https://svelte.dev/docs/svelte/svelte-easing)
+export type EffectFadeTimingFunctions = 'linear';
+
 
 
 export type Action = ActionJump | ActionAssignVariable;
@@ -37,14 +40,18 @@ export interface ActionAssignVariable {
     expression: Expression;
 }
 
-export type Effect = EffectFade;
 
-export interface EffectFade {
-    type: 'EFF_FADE';
-    on: 'show' | 'hide' | 'both';
-    /** In milliseconds. */
-    timing: number;
+export interface Effects {
+    fade?: {
+        /** In milliseconds. */
+        duration: number;
+        /** In milliseconds. */
+        delay?: number;
+        /** Default is `"linear"`. */
+        timing_func?: EffectFadeTimingFunctions;
+    },
 }
+
 
 // #endregion
 
@@ -60,7 +67,7 @@ export interface WidgetTemplate {
     style?: string;
     use_style_decl?: Array<StyleDeclaration['name']>;
 
-    effects?: Array<Effect>;
+    effects?: Effects;
 }
 
 // #endregion
@@ -72,7 +79,8 @@ export interface WidgetTemplate {
 // #region Main
 
 export interface Script {
-    version?: number | string;
+    /** Semantic version (e.g. `"1.2.3"`). */
+    version: string;
     declarations?: Array<Declaration>;
     widgets?: Array<Widget>;
 }
