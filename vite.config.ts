@@ -15,7 +15,10 @@ export default defineConfig({
         lib: {
             entry: './src/main.ts',
             name: 'VideoPlayer',
-            formats: [ 'es', 'iife' ],
+            formats: [
+                'es',
+                'iife',
+            ],
             fileName: 'video-player',
         },
         emptyOutDir: true,
