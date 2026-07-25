@@ -1,12 +1,17 @@
+import type { VariableValueNil } from './vm/vm';
+
+
 // #region Helper types
 
 /** Media timestamp expressed in seconds. */
 export type Timestamp = number;
 
 /**
- * Simple expression : `"1 + 2"`.
+ * Expression should use prefix notation, enclosed in parentheses.
  *
- * Expression with a variable : `"$variable_name * 3"`.
+ * Simple expression: `(+ 1 2)`.\
+ * Expression with a variable: `(* $variable_name 3)`.\
+ * Expression with a function: `(+ 1 RAND(- 2 3))`.
  */
 export type Expression = string;
 
@@ -37,7 +42,7 @@ export interface ActionAssignVariable {
     type: 'ACT_VARIABLE_ASSIGNMENT';
     /** Variable name. */
     name: string;
-    expression: Expression;
+    value: Expression | VariableValueNumber | VariableValueNil;
 }
 
 
@@ -93,8 +98,8 @@ export interface VariableDeclaration {
     type: 'DECL_VARIABLE';
     /** Variable name. */
     name: string;
-    /** Expression which value used as initial. If omitted, variable's value defaults to `null`. */
-    initial_value?: Expression;
+    /** Expression which value used as initial. If omitted, variable's value defaults to `NIL`. */
+    initial_value?: Expression | VariableValueNumber | VariableValueNil;
 }
 
 export interface StyleDeclaration {
