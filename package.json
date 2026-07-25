@@ -1,8 +1,19 @@
 {
   "name": "custom-video-player",
-  "private": true,
   "version": "0.0.0",
+  "description": "Custom Video Player element.",
+  "license": "Apache-2.0",
+  "exports": {
+    ".": {
+      "import": "./dist/video-player.js",
+      "browser": "./dist/video-player.iife.js"
+    }
+  },
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Louikka/custom-video-player.git"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -19,5 +30,6 @@
     "typescript": "~6.0.2",
     "vite": "^8.0.12",
     "vitest": "^4.1.9"
-  }
+  },
+  "private": true
 }
