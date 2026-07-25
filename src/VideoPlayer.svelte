@@ -8,9 +8,13 @@
 <!-- #region Script
 -->
 <script lang="ts">
-    import { fade } from 'svelte/transition';
-
-    import { formatMediaPreload, formatVideoDuration, getMediaTimeRatio, toggleFullscreen, togglePlayback } from './lib/lib';
+    import {
+        formatMediaPreload,
+        formatVideoDuration,
+        getMediaTimeRatio,
+        toggleFullscreen,
+        togglePlayback
+    } from './lib/lib';
     import { parseScript } from './widgets/helpers';
     import type { Script } from './widgets/widgets';
 
@@ -325,6 +329,8 @@
 <!-- #region Styles
 -->
 <style>
+    /* Element can be customized via custom CSS custom properties. */
+
     .__wrapper__ {
         position : relative;
 
@@ -377,11 +383,11 @@
         flex-wrap : nowrap;
         align-items : center;
 
-        background-color : rgb(8 8 8);
-        border : 1px solid rgb(255 255 255 / .3);
+        background-color : var(--video-player-bg, rgb(8 8 8));
+        border : 1px solid var(--video-player-border, rgb(255 255 255 / .3));
         border-radius : 999em;
 
-        color : whitesmoke;
+        color : var(--video-player-color, whitesmoke);
     }
 
     .controls .button {
@@ -397,7 +403,7 @@
         color : currentColor;
     }
     .controls .button:hover {
-        background-color : rgb(255 255 255 / .1);
+        background-color : var(--video-player-bg-hover, rgb(255 255 255 / .1));
     }
     .controls .button > :global(svg) {
         width : 100%;
@@ -449,8 +455,8 @@
         height : 30px;
         padding : 0 1rem;
 
-        background-color : rgb(8 8 8);
-        border : 1px solid rgb(255 255 255 / .3);
+        background-color : var(--video-player-bg, rgb(8 8 8));
+        border : 1px solid var(--video-player-border, rgb(255 255 255 / .3));
         border-radius : 999em;
     }
 </style>

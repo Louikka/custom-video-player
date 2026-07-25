@@ -59,7 +59,7 @@
     ontouchmove={(ev) =>
     {
         if (!isDragging) return;
-        update(ev.touches[0]);
+        update(ev.touches[0]!);
     }}
     ontouchend={() =>
     {
@@ -85,7 +85,7 @@
         ontouchstart={(ev) =>
         {
             isDragging = true;
-            update(ev.touches[0]);
+            update(ev.touches[0]!);
         }}
     >
         <div class="custom-input-range-handle"></div>
@@ -112,7 +112,7 @@
         background-color : currentColor;
         background-image : linear-gradient(
             to right,
-            brown var(--value, 0),
+            var(--video-player-accent-color, brown) var(--value, 0),
             transparent var(--value, 0)
         );
         border : none;
