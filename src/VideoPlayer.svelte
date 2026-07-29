@@ -126,7 +126,6 @@
     <div bind:this={canvas} class="canvas"></div>
 
     {#if isControlsEnabled}
-        <!-- svelte-ignore a11y_no_static_element_interactions -->
         <div
             class="controls-wrapper"
 

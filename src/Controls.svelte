@@ -10,7 +10,6 @@
     import icon_volume_off from './assets/icons/videojs-v10/default/volume-off.svg?raw';
     import icon_volume_low from './assets/icons/videojs-v10/default/volume-low.svg?raw';
     import icon_volume_high from './assets/icons/videojs-v10/default/volume-high.svg?raw';
-    import icon_dots from 'bootstrap-icons/icons/three-dots-vertical.svg?raw';
     import icon_fullscreen_enter from './assets/icons/videojs-v10/default/fullscreen-enter.svg?raw';
     import icon_fullscreen_exit from './assets/icons/videojs-v10/default/fullscreen-exit.svg?raw';
 
@@ -303,6 +302,7 @@
         left : 50%;
         transform : translateY(-50%) rotate(-90deg);
         transform-origin : center left;
+
         padding : .5rem .5rem .5rem 1.25rem;
 
         display : none;
