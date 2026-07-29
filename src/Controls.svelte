@@ -304,7 +304,7 @@
         left : 50%;
         transform : translateY(-50%) rotate(-90deg);
         transform-origin : center left;
-        padding : .4rem 1.1rem;
+        padding : .5rem .5rem .5rem 1.25rem;
 
         display : none;
     }
@@ -314,7 +314,7 @@
     .controls > .volume .volume-bar {
         width : 100px;
         height : 30px;
-        padding : 0 1rem;
+        padding : 0 .8rem;
 
         background-color : var(--video-player-bg, rgb(8 8 8));
         border : 1px solid var(--video-player-border, rgb(255 255 255 / .3));
