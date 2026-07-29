@@ -16,16 +16,12 @@
 -->
 <script lang="ts">
     import type { HTMLVideoAttributes } from 'svelte/elements';
-    import { parseScript } from './widgets/helpers';
-    import type { Script } from './widgets/widgets';
 
-    import WidgetsCanvas from './widgets/WidgetsCanvas.svelte';
     import Controls from './Controls.svelte';
 
 
     interface Props extends HTMLVideoAttributes {
         hideProgress?: boolean;
-        script?: string | Script;
     }
 
     let {
@@ -34,7 +30,6 @@
         src,
 
         hideProgress = false,
-        script,
     }: Props = $props();
 
 
@@ -60,9 +55,6 @@
         if (_isControlsTimedOut) return false;
         return true;
     });
-
-
-    const parsedScript = $derived(parseScript(script));
 
 
     /** If video is currently paused. */
@@ -132,10 +124,6 @@
     </video>
 
     <div bind:this={canvas} class="canvas"></div>
-
-    {#if parsedScript !== null}
-        <WidgetsCanvas bind:videoCurrentTime={currentTime} script={parsedScript} />
-    {/if}
 
     {#if isControlsEnabled}
         <!-- svelte-ignore a11y_no_static_element_interactions -->
