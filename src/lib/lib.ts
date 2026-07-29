@@ -82,6 +82,9 @@ export function togglePlayback(e: HTMLMediaElement)
     }
 }
 
+/**
+ * @param e target element.
+ */
 export async function toggleFullscreen(e: HTMLElement): Promise<boolean>
 {
     if (document.fullscreenElement === null)
@@ -117,4 +120,31 @@ export function getMediaTimeRatio(currentTime: number, duration: number): number
     }
 
     return 0;
+}
+
+
+export function getElementTopLeft(e: HTMLElement)
+{
+    const rect = e.getBoundingClientRect();
+
+    const style = window.getComputedStyle(e);
+    const transform = style.transform;
+
+    const matrix = new DOMMatrix(transform);
+
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+
+    // calculate vector from center to original top-left corner
+    const localX = -rect.width / 2;
+    const localY = -rect.height / 2;
+
+    // apply rotation matrix to the local vector
+    const rotatedX = localX * matrix.a + localY * matrix.c;
+    const rotatedY = localX * matrix.b + localY * matrix.d;
+
+    return {
+        x: centerX + rotatedX,
+        y: centerY + rotatedY,
+    };
 }

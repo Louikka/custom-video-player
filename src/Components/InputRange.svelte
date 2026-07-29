@@ -1,7 +1,10 @@
 <script lang="ts">
-    interface Props {
-        /** Number between 0 and 1. */
-        value?: number;
+    import type { HTMLInputAttributes } from 'svelte/elements';
+
+
+    interface Props extends HTMLInputAttributes {
+        value: number; // narrow value type since components tries to mimic input with type="range"
+
         /** This function runs every time the value is manually updated. */
         onupdate?: (value: number) => void;
         orientation?: 'horizontal' | 'vertical';
@@ -22,6 +25,11 @@
     const update = (ev: MouseEvent | Touch) =>
     {
         const rect = e.getBoundingClientRect();
+
+        // TODO: get rid of `orientation` property
+
+        // window.getComputedStyle(e).transform
+        // https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/transform-function/matrix#values
 
         if (orientation === 'horizontal')
         {
@@ -68,6 +76,7 @@
 />
 
 <div class="__wrapper__">
+    <div class="_start"></div>
     <button
         bind:this={e}
 
