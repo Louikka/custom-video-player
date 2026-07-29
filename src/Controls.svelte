@@ -140,6 +140,7 @@
 
 <div class="controls">
     <div class="play">
+        <!-- FIXME: apparently cannot gain focus?? -->
         <button
             class="button"
             title={paused ? 'Play' : 'Pause'}
@@ -153,7 +154,7 @@
         </button>
     </div>
 
-    <div class="progress">
+    <div class="progress"> <!-- TODO: make focusable -->
         {#if isProgressDisabled}
             <div class="time">
                 {formatVideoDuration(currentTimeSafe)}
@@ -198,10 +199,7 @@
 
         <div class="volume-bar-wrapper">
             <div class="volume-bar">
-                <InputRange
-                    bind:value={volume}
-                    orientation="vertical"
-                />
+                <InputRange bind:value={volume} />
             </div>
         </div>
     </div>
@@ -279,7 +277,7 @@
 
         display : flex;
         align-items : center;
-        gap : .67rem;
+        gap : .333rem;
     }
     .controls > .progress > .time {
         /* fix wierd alignment? */
@@ -314,7 +312,7 @@
     .controls > .volume .volume-bar {
         width : 100px;
         height : 30px;
-        padding : 0 .8rem;
+        padding : 0 .6rem;
 
         background-color : var(--video-player-bg, rgb(8 8 8));
         border : 1px solid var(--video-player-border, rgb(255 255 255 / .3));

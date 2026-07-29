@@ -7,104 +7,38 @@
 
         /** This function runs every time the value is manually updated. */
         onupdate?: (value: number) => void;
-        orientation?: 'horizontal' | 'vertical';
     }
 
     let {
         value = $bindable(0),
         onupdate,
-        orientation = 'horizontal',
     }: Props = $props();
-
-
-    let e: HTMLElement;
-
-    /** If currently being dragged. */
-    let isDragging = $state(false);
-
-    const update = (ev: MouseEvent | Touch) =>
-    {
-        const rect = e.getBoundingClientRect();
-
-        // TODO: get rid of `orientation` property
-
-        // window.getComputedStyle(e).transform
-        // https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/transform-function/matrix#values
-
-        if (orientation === 'horizontal')
-        {
-            let offsetX = ev.clientX - rect.left;
-            offsetX = Math.max(0, Math.min(offsetX, rect.width));
-            value = offsetX / rect.width;
-        }
-        else if (orientation === 'vertical')
-        {
-            let offsetY = rect.bottom - ev.clientY;
-            offsetY = Math.max(0, Math.min(offsetY, rect.height));
-            value = offsetY / rect.height;
-        }
-        else
-        {
-            return;
-        }
-
-        if (onupdate !== undefined) onupdate(value);
-    };
 </script>
 
 
 
-<svelte:window
-    onmousemove={(ev) =>
-    {
-        if (!isDragging) return;
-        update(ev);
-    }}
-    onmouseup={() =>
-    {
-        isDragging = false;
-    }}
-    ontouchmove={(ev) =>
-    {
-        if (!isDragging) return;
-        update(ev.touches[0]!);
-    }}
-    ontouchend={() =>
-    {
-        isDragging = false;
-    }}
-/>
-
 <div class="__wrapper__">
-    <div class="_start"></div>
-    <button
-        bind:this={e}
-
-        class="custom-input-range"
-
-        aria-label="video time progress bar"
-
-        style:--value="{value * 100}%"
-
-        onmousedown={(ev) =>
-        {
-            isDragging = true;
-            update(ev);
-        }}
-        ontouchstart={(ev) =>
-        {
-            isDragging = true;
-            update(ev.touches[0]!);
-        }}
-    >
-        <div class="custom-input-range-handle"></div>
-    </button>
+    <!-- TODO: switch to html progress element -->
+    <div class="progress" style:--value="{value * 100}%"></div>
+    <input
+        class="input"
+        type="range"
+        min="0"
+        max="1"
+        step="any"
+        bind:value
+        oninput={() => onupdate?.(value) }
+    />
 </div>
 
 
 
 <style>
     .__wrapper__ {
+        --thumb-size : 12px;
+
+        position: relative;
+
         width : 100%;
         height : 100%;
 
@@ -112,35 +46,44 @@
         align-items : center;
     }
 
-    .custom-input-range {
-        position : relative;
-
+    .progress {
         width : 100%;
         height : 4px;
+        margin : 0 calc(var(--thumb-size) / 2);
 
-        background-color : currentColor;
+        background-color : currentcolor;
         background-image : linear-gradient(
             to right,
             var(--video-player-accent-color, brown) var(--value, 0),
             transparent var(--value, 0)
         );
         border : none;
-        border-radius : 999em;
+        border-radius : calc(infinity * 1px);
         cursor : pointer;
 
         color : inherit;
     }
-    .custom-input-range > .custom-input-range-handle {
+    .input {
         position : absolute;
         top : 50%;
-        left : var(--value, 0);
-        transform : translate(-50%, -50%);
+        left : 0;
+        transform : translateY(-50%);
 
-        width : 12px;
+        width : 100%;
+
+        appearance : none;
+        background-color : transparent;
+        outline : none;
+        cursor : pointer;
+
+        color : inherit;
+    }
+    .input::-webkit-slider-thumb {
+        width : var(--thumb-size);
         aspect-ratio : 1/1;
 
-        background-color : currentColor;
-        clip-path : circle(50%);
-        cursor : pointer;
+        appearance : none;
+        background-color : currentcolor;
+        border-radius : calc(infinity * 1px);
     }
 </style>
