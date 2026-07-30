@@ -1,3 +1,9 @@
+import { addElementToCanvas, clearCanvas, removeElementFromCanvas } from './lib/shared.svelte';
 import VideoPlayer from './VideoPlayer.svelte';
 
-export default VideoPlayer;
+export {
+    VideoPlayer,
+    addElementToCanvas,
+    removeElementFromCanvas,
+    clearCanvas,
+};

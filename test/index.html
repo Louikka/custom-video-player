@@ -37,6 +37,28 @@
             <video-player src="./video.mp4" controls></video-player>
         </div>
     </div>
+
+    <script>
+        VideoPlayer.addElementToCanvas((() =>
+        {
+            const e = document.createElement('button');
+            e.textContent = 'Test button';
+            e.style = `
+                position : absolute;
+                top : 100px;
+                left : 200px;
+            `;
+
+            e.onclick = () =>
+            {
+                const player = document.querySelector('video-player');
+                const video = player?.shadowRoot.querySelector('video');
+                if (video) video.currentTime += 5;
+            }
+
+            return e;
+        })(), 1, 10);
+    </script>
 </body>
 
 </html>

@@ -15,7 +15,10 @@
 <!-- #region Script
 -->
 <script lang="ts">
+    import { onMount } from 'svelte';
     import type { HTMLVideoAttributes } from 'svelte/elements';
+    import { isTimeInTimeframe } from './lib/lib';
+    import { canvasElementIDClassTemplate, canvasElements } from './lib/shared.svelte';
 
     import Controls from './Controls.svelte';
 
@@ -85,6 +88,29 @@
             _isControlsTimedOut = true;
         }
     };
+
+
+    onMount(() =>
+    {
+        video.addEventListener('timeupdate', () =>
+        {
+            for (const ce of canvasElements)
+            {
+                const shouldShow = isTimeInTimeframe(video.currentTime, { start: ce.showAt, end: ce.hideAt });
+
+                if (!ce.isMounted && shouldShow)
+                {
+                    canvas.append(ce.e);
+                    ce.isMounted = true;
+                }
+                else if (ce.isMounted && !shouldShow)
+                {
+                    canvas.querySelector(`.${canvasElementIDClassTemplate}${ce.id}`)?.remove();
+                    ce.isMounted = false;
+                }
+            }
+        });
+    });
 </script>
 <!-- #endregion -->
 
