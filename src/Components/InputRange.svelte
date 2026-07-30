@@ -77,6 +77,7 @@
         transform : translateY(-50%);
 
         width : 100%;
+        margin : 0;
 
         appearance : none;
         background-color : transparent;
