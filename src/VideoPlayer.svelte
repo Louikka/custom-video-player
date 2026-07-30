@@ -2,7 +2,7 @@
     // https://svelte.dev/docs/svelte/custom-elements#Component-options
     customElement={{
         tag: 'video-player',
-        shadow: 'none',
+        shadow: 'open',
         props: {
             hideProgress: {
                 attribute: 'hideprogress',
