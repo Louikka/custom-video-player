@@ -141,7 +141,6 @@
 
 <div class="controls">
     <div class="play">
-        <!-- FIXME: apparently cannot gain focus?? -->
         <button
             class="button"
             title={paused ? 'Play' : 'Pause'}
@@ -155,7 +154,7 @@
         </button>
     </div>
 
-    <div class="progress"> <!-- TODO: make focusable -->
+    <div class="progress">
         {#if isProgressDisabled}
             <div class="time">
                 {formatMediaDuration(currentTimeSafe)}

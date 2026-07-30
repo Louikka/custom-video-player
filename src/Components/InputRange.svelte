@@ -18,8 +18,7 @@
 
 
 <div class="__wrapper__">
-    <!-- TODO: switch to html progress element -->
-    <div class="progress" style:--value="{value * 100}%"></div>
+    <progress max="1" {value}>{value * 100}%</progress>
     <input
         class="input"
         type="range"
@@ -46,24 +45,32 @@
         align-items : center;
     }
 
-    .progress {
+    progress {
         width : 100%;
         height : 4px;
         margin : 0 calc(var(--thumb-size) / 2);
 
+        appearance: none;
         background-color : currentcolor;
-        background-image : linear-gradient(
-            to right,
-            var(--video-player-accent-color, brown) var(--value, 0),
-            transparent var(--value, 0)
-        );
         border : none;
         border-radius : calc(infinity * 1px);
-        cursor : pointer;
 
         color : inherit;
     }
-    .input {
+    progress::-webkit-progress-bar {
+        background-color : currentcolor;
+        border-radius : calc(infinity * 1px);
+    }
+    progress::-webkit-progress-value {
+        background-color : var(--video-player-accent-color, brown);
+        border-radius : calc(infinity * 1px);
+    }
+    progress::-moz-progress-bar {
+        background-color : var(--video-player-accent-color, brown);
+        border-radius : calc(infinity * 1px);
+    }
+
+    input {
         position : absolute;
         top : 50%;
         left : 0;
@@ -78,12 +85,18 @@
 
         color : inherit;
     }
-    .input::-webkit-slider-thumb {
+    input::-webkit-slider-thumb {
         width : var(--thumb-size);
         aspect-ratio : 1/1;
 
         appearance : none;
         background-color : currentcolor;
         border-radius : calc(infinity * 1px);
+    }
+    input::-moz-range-thumb {
+        width : var(--thumb-size);
+        height : var(--thumb-size);
+
+        border : none;
     }
 </style>
