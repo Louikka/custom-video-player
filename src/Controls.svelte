@@ -1,7 +1,8 @@
 <!-- #region Script
 -->
 <script lang="ts">
-    import { formatVideoDuration, getMediaTimeRatio, toggleFullscreen, togglePlayback } from './lib/lib';
+    import { toggleFullscreen } from './lib/lib';
+    import { togglePlayback, getMediaTimeRatio, formatMediaDuration } from './lib/media_helpers';
 
     import InputRange from './Components/InputRange.svelte';
 
@@ -157,14 +158,14 @@
     <div class="progress"> <!-- TODO: make focusable -->
         {#if isProgressDisabled}
             <div class="time">
-                {formatVideoDuration(currentTimeSafe)}
+                {formatMediaDuration(currentTimeSafe)}
                 {#if Number.isFinite(durationSafe)}
-                    <span>/ {formatVideoDuration(durationSafe)}</span>
+                    <span>/ {formatMediaDuration(durationSafe)}</span>
                 {/if}
             </div>
             <div style="flex-grow:1"></div>
         {:else}
-            <div class="time">{formatVideoDuration(currentTimeSafe)}</div>
+            <div class="time">{formatMediaDuration(currentTimeSafe)}</div>
             <div class="input">
                 <InputRange
                     value={getMediaTimeRatio(currentTimeSafe, durationSafe)}
@@ -174,7 +175,7 @@
                     }}
                 />
             </div>
-            <div class="time">{formatVideoDuration(durationSafe)}</div>
+            <div class="time">{formatMediaDuration(durationSafe)}</div>
         {/if}
     </div>
 
