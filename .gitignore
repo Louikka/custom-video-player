@@ -24,4 +24,4 @@ dist-ssr
 *.sw?
 *.ini
 *.code-workspace
-/test
+*.mp4
