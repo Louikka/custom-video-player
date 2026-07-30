@@ -96,7 +96,16 @@
         {
             for (const ce of canvasElements)
             {
-                const shouldShow = isTimeInTimeframe(video.currentTime, { start: ce.showAt, end: ce.hideAt });
+                let shouldShow = false;
+
+                if (Array.isArray(ce.dt))
+                {
+                    shouldShow = ce.dt.some(v => isTimeInTimeframe(currentTime, { start: v.showAt, end: v.hideAt }));
+                }
+                else
+                {
+                    shouldShow = isTimeInTimeframe(currentTime, { start: ce.dt.showAt, end: ce.dt.hideAt });
+                }
 
                 if (!ce.isMounted && shouldShow)
                 {

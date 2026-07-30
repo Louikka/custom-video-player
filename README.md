@@ -3,6 +3,11 @@
 Simple wrapper over native HTML5 video element.
 
 
+## Scripting
+
+Player allows custom controls to be displayed on top of the video. Use exported functions (like [`addElementToCanvas`](./src/lib/shared.svelte.ts#addElementToCanvas) or [`clearCanvas`](./src/lib/shared.svelte.ts#clearCanvas)) to manage custom controls lifecycle. The custom controls themselves are just plain `HTMLElement`s that must be passed to the add function.
+
+
 ## Styling
 
 Video player color theme can be customized via CSS custom properties (aka variables).
