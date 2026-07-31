@@ -13,7 +13,7 @@ On top of that, it also accepts next custom properties:
 
 ## Scripting
 
-Value of playback jumping via key bindings (LeftArrow/RightArrow) can be set with [`setJumpValue`](./src/lib/shared.svelte.ts#setJumpValue).
+Value of playback jumping via key bindings (LeftArrow/RightArrow) can be modified with [`setJumpValue`](./src/lib/shared.svelte.ts#setJumpValue) (default is 5 seconds).
 
 Player allows custom controls to be displayed on top of the video. Use exported functions (like [`addElementToCanvas`](./src/lib/shared.svelte.ts#addElementToCanvas) or [`clearCanvas`](./src/lib/shared.svelte.ts#clearCanvas)) to manage custom controls lifecycle. The custom controls themselves are just plain `HTMLElement`s that must be passed to the add function.
 
