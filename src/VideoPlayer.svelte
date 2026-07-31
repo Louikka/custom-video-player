@@ -5,7 +5,7 @@
         shadow: 'open',
         props: {
             hideProgress: {
-                attribute: 'hideprogress',
+                attribute: 'hide-progress',
                 type: 'Boolean',
             },
         },

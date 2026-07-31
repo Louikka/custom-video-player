@@ -1,5 +1,24 @@
-export const canvasElementIDClassTemplate = '__VideoPlayer_canvas_element_';
+/* General options ***********************************************************/
 
+export interface VideoPlayerOptions {
+    jumpValue: number;
+}
+
+export const videoPlayerOptions = $state<VideoPlayerOptions>({
+    jumpValue: 5,
+});
+
+
+/** Sets value (in seconds) of the jump bindings. */
+export function setJumpValue(v: number)
+{
+    videoPlayerOptions.jumpValue = v;
+}
+
+
+/* Canvas ********************************************************************/
+
+export const canvasElementIDClassTemplate = '__VideoPlayer_canvas_element_';
 
 export interface CanvasElement {
     /** Element that should be displayed on canvas. */

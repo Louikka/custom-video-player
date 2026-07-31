@@ -3,7 +3,17 @@
 Simple wrapper over native HTML5 video element.
 
 
+## HTML
+
+Player element (`<video-player></video-player>`) have some standart properties from HTMLVideoElement (`src`, `controls`, etc.).
+
+On top of that, it also accepts next custom properties:
+- `hide-progress` — hides progress bar and disables related key bindings.
+
+
 ## Scripting
+
+Value of playback jumping via key bindings (LeftArrow/RightArrow) can be set with [`setJumpValue`](./src/lib/shared.svelte.ts#setJumpValue).
 
 Player allows custom controls to be displayed on top of the video. Use exported functions (like [`addElementToCanvas`](./src/lib/shared.svelte.ts#addElementToCanvas) or [`clearCanvas`](./src/lib/shared.svelte.ts#clearCanvas)) to manage custom controls lifecycle. The custom controls themselves are just plain `HTMLElement`s that must be passed to the add function.
 

@@ -3,6 +3,7 @@
 <script lang="ts">
     import { toggleFullscreen } from './lib/lib';
     import { togglePlayback, getMediaTimeRatio, formatMediaDuration } from './lib/media_helpers';
+    import { videoPlayerOptions } from './lib/shared.svelte';
 
     import InputRange from './Components/InputRange.svelte';
 
@@ -81,7 +82,7 @@
 
                 if (!isProgressDisabled)
                 {
-                    currentTime -= 5;
+                    currentTime -= videoPlayerOptions.jumpValue;
                 }
 
                 break;
@@ -93,7 +94,7 @@
 
                 if (!isProgressDisabled)
                 {
-                    currentTime += 5;
+                    currentTime += videoPlayerOptions.jumpValue;
                 }
 
                 break;
