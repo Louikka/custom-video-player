@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
+import dts from 'unplugin-dts/vite';
 
 
 // https://vite.dev/config/
@@ -9,6 +10,10 @@ export default defineConfig({
             compilerOptions: {
                 customElement: true,
             },
+        }),
+        dts({ 
+            bundleTypes: true,
+            tsconfigPath: './tsconfig.app.json',
         }),
     ],
     build: {
