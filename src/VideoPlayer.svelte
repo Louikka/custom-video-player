@@ -92,6 +92,12 @@
 
     onMount(() =>
     {
+        // fix slotted content
+        document.addEventListener('DOMContentLoaded', () =>
+        {
+            video.append(...$host().children);
+        });
+
         video.addEventListener('timeupdate', () =>
         {
             for (const ce of canvasElements)
@@ -141,6 +147,7 @@
     onmouseenter={() => (_showControlsOnLoad = false, _isMouseOverWrapper = true)}
     onmouseleave={() => _isMouseOverWrapper = false}
 >
+    <!-- svelte-ignore a11y_media_has_caption -->
     <video
         bind:this={video}
         // https://svelte.dev/docs/svelte/bind#audio
@@ -152,10 +159,10 @@
         // readonly binds
         bind:duration
 
+        {src}
         {preload}
     >
-        <source {src} />
-        Your browser does not support HTML5 video.
+        <slot />
     </video>
 
     <div bind:this={canvas} class="canvas"></div>
