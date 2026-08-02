@@ -9,6 +9,8 @@
 
     <link rel="stylesheet" href="./modern-normalize.css" />
 
+    <script src="../dist/video-player.iife.js"></script>
+
     <style>
         html {
             height : 100%;
@@ -25,8 +27,6 @@
             display : block;
         }
     </style>
-
-    <script src="../dist/video-player.iife.js"></script>
 </head>
 
 
@@ -41,25 +41,13 @@
     </div>
 
     <script>
-        VideoPlayer.addElementToCanvas((() =>
+        document.addEventListener('DOMContentLoaded', () =>
         {
-            const e = document.createElement('button');
-            e.textContent = 'Test button';
-            e.style = `
-                position : absolute;
-                top : 100px;
-                left : 200px;
-            `;
-
-            e.onclick = () =>
-            {
-                const player = document.querySelector('video-player');
-                const video = player?.shadowRoot.querySelector('video');
-                if (video) video.currentTime += 5;
-            }
-
-            return e;
-        })(), 1, 10);
+            // setTimeout(() =>
+            // {
+            //     document.querySelector('video-player').setAttribute('src', './video.mp4');
+            // }, 500);
+        });
     </script>
 </body>
 

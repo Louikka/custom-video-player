@@ -8,7 +8,7 @@ Simple wrapper over native HTML5 video element.
 Player element (`<video-player></video-player>`) have some standart properties from HTMLVideoElement (`src`, `controls`, etc.).
 
 On top of that, it also accepts next custom properties:
-- `hide-progress` — hides progress bar and disables related key bindings.
+- `hideprogress` — hides progress bar and disables related key bindings.
 
 
 ## Scripting
@@ -30,3 +30,8 @@ Available properties to edit:
 - `--video-player-border` — border color.
 - `--video-player-color` — color of the text/icons.
 - `--video-player-accent-color` — accent color.
+
+
+## Important notes
+
+Video player can have child `<source />` elements, but only if they appended *before* `DOMContentLoaded` event was fired. Setting `src` attribute on player itself though will work as expected.

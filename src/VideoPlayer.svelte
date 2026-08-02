@@ -4,8 +4,13 @@
         tag: 'video-player',
         shadow: 'open',
         props: {
+            controls: {
+                type: 'Boolean',
+            },
+            src: {
+                type: 'String',
+            },
             hideProgress: {
-                attribute: 'hide-progress',
                 type: 'Boolean',
             },
         },
@@ -17,7 +22,7 @@
 <script lang="ts">
     import { onMount } from 'svelte';
     import type { HTMLVideoAttributes } from 'svelte/elements';
-    import { isTimeInTimeframe } from './lib/lib';
+    import { isNil, isTimeInTimeframe } from './lib/lib';
     import { canvasElementIDClassTemplate, canvasElements } from './lib/shared.svelte';
 
     import Controls from './Controls.svelte';
@@ -29,10 +34,11 @@
 
     let {
         controls,
-        preload,
         src,
 
         hideProgress = false,
+
+        ...rest
     }: Props = $props();
 
 
@@ -44,13 +50,19 @@
     let video: HTMLVideoElement;
     let canvas: HTMLElement;
 
+    const updateVideoChildren = () =>
+    {
+        video.textContent = '';
+        video.append(...$host().children);
+    };
+
     let _isMouseOverWrapper = $state(false);
     let _showControlsOnLoad = $state(true);
     let _isMouseOverControls = $state(false);
     let _isControlsTimedOut = $state(false);
     let _mouseMovementTimerId = 0;
 
-    const isControlsEnabled = $derived(controls !== undefined);
+    const isControlsEnabled = $derived(!isNil(controls) && controls);
     const isControlsVisible = $derived.by(() =>
     {
         if (_showControlsOnLoad) return true;
@@ -97,6 +109,7 @@
         {
             video.append(...$host().children);
         });
+
 
         video.addEventListener('timeupdate', () =>
         {
@@ -160,9 +173,10 @@
         bind:duration
 
         {src}
-        {preload}
+
+        {...rest}
     >
-        <slot />
+        <slot>dummy</slot>
     </video>
 
     <div bind:this={canvas} class="canvas"></div>
