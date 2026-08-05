@@ -15,7 +15,7 @@ On top of that, it also accepts next custom properties:
 
 Reference to the underlying `HTMLVideoElement` can be obtained via [shadow DOM's root](https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_shadow_DOM#element.shadowroot_and_the_mode_option).
 
-Player allows custom controls to be displayed on top of the video. Use exported functions (like [`addElementToCanvas`](./src/lib/shared.svelte.ts#addElementToCanvas) or [`clearCanvas`](./src/lib/shared.svelte.ts#clearCanvas)) to manage custom controls lifecycle. The custom controls themselves are just plain `HTMLElement`s that must be passed to the add function.
+Player allows custom controls to be displayed on top of the video (using [`addElementToCanvas`](./src/lib/shared.svelte.ts#addElementToCanvas) or [`clearCanvas`](./src/lib/shared.svelte.ts#clearCanvas), for example). The custom controls themselves can be just plain `HTMLElement`s.
 
 
 ## Styling
