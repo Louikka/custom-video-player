@@ -44,3 +44,28 @@ export async function toggleFullscreen(e: HTMLElement): Promise<boolean>
         return false;
     }
 }
+
+/**
+ * Formats duration as ISO 8601 duration string.
+ *
+ * @param t duration in seconds.
+ */
+export function toISODuration(t: number): string
+{
+    if (!Number.isFinite(t) || t < 0)
+    {
+        return '';
+    }
+
+    const h = Math.floor(t / 3600);
+    const m = Math.floor((t % 3600) / 60);
+    const s = t % 60;
+
+    let duration = 'PT';
+
+    if (h > 0) duration += `${h}H`;
+    if (m > 0) duration += `${m}M`;
+    if (s > 0 || duration === 'PT') duration += `${s}S`;
+
+    return duration;
+}

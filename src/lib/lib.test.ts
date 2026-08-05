@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { isNil, isTimeInTimeframe } from './lib';
+import { isNil, isTimeInTimeframe, toISODuration } from './lib';
 
 
 test.for([
@@ -29,4 +29,18 @@ test.for([
 ])(`isTimeInTimeframe($arg1, $arg2) => $expected`, ({ arg1, arg2, expected }) =>
 {
     expect(isTimeInTimeframe(arg1, arg2)).toBe(expected);
+});
+
+
+test.for([
+    { t: 10, expected: 'PT10S' },
+    { t: 60, expected: 'PT1M' },
+    { t: 123, expected: 'PT2M3S' },
+    { t: 10000, expected: 'PT2H46M40S' },
+    { t: 12.34, expected: 'PT12.34S' },
+    { t: NaN, expected: '' },
+    { t: Infinity, expected: '' },
+])(`toISODuration($t) => $expected`, ({ t, expected }) =>
+{
+    expect(toISODuration(t)).toBe(expected);
 });
