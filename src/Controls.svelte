@@ -1,9 +1,10 @@
 <!-- #region Script
 -->
 <script lang="ts">
-    import { toggleFullscreen, toISODuration } from './lib/lib';
-    import { togglePlayback, getMediaTimeRatio, formatMediaDuration } from './lib/media_helpers';
+    import { toHHMMSSDuration, toISODuration } from './lib/lib';
+    import { getMediaTimeRatio } from './lib/helpers';
     import { videoPlayerOptions } from './lib/shared.svelte';
+    import { togglePlayback, toggleFullscreen } from './lib/HTMLElement_helpers';
 
     import InputRange from './Components/InputRange.svelte';
 
@@ -158,15 +159,15 @@
     <div class="progress">
         {#if isProgressDisabled}
             <div class="time">
-                <time datetime={toISODuration(currentTimeSafe)}>{formatMediaDuration(currentTimeSafe)}</time>
+                <time datetime={toISODuration(currentTimeSafe)}>{toHHMMSSDuration(currentTimeSafe)}</time>
                 {#if Number.isFinite(durationSafe)}
-                    <time datetime={toISODuration(durationSafe)}>/ {formatMediaDuration(durationSafe)}</time>
+                    <time datetime={toISODuration(durationSafe)}>/ {toHHMMSSDuration(durationSafe)}</time>
                 {/if}
             </div>
             <div style="flex-grow:1"></div>
         {:else}
             <div class="time">
-                <time datetime={toISODuration(currentTimeSafe)}>{formatMediaDuration(currentTimeSafe)}</time>
+                <time datetime={toISODuration(currentTimeSafe)}>{toHHMMSSDuration(currentTimeSafe)}</time>
             </div>
             <div class="input">
                 <InputRange
@@ -178,7 +179,7 @@
                 />
             </div>
             <div class="time">
-                <time datetime={toISODuration(durationSafe)}>{formatMediaDuration(durationSafe)}</time>
+                <time datetime={toISODuration(durationSafe)}>{toHHMMSSDuration(durationSafe)}</time>
             </div>
         {/if}
     </div>

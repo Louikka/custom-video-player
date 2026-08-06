@@ -22,10 +22,11 @@
 <script lang="ts">
     import { onMount } from 'svelte';
     import type { HTMLVideoAttributes } from 'svelte/elements';
-    import { isNil, isTimeInTimeframe } from './lib/lib';
-    import { canvasElementIDClassTemplate, canvasElements } from './lib/shared.svelte';
+    import { isNil } from './lib/lib';
+    import { canvasElements, videoPlayerOptions } from './lib/shared.svelte';
 
     import Controls from './Controls.svelte';
+    import { manageCanvasElementsOnTimeupdate } from './lib/helpers';
 
 
     interface Props extends HTMLVideoAttributes {
@@ -50,26 +51,57 @@
     let video: HTMLVideoElement;
     let canvas: HTMLElement;
 
-    const updateVideoChildren = () =>
-    {
-        video.textContent = '';
-        video.append(...$host().children);
-    };
 
-    let _isMouseOverWrapper = $state(false);
+    let isMouseOverWrapper = $state(false);
+    let isMouseOverControls = $state(false);
+
     let _showControlsOnLoad = $state(true);
-    let _isMouseOverControls = $state(false);
     let _isControlsTimedOut = $state(false);
-    let _mouseMovementTimerId = 0;
 
     const isControlsEnabled = $derived(!isNil(controls) && controls);
     const isControlsVisible = $derived.by(() =>
     {
         if (_showControlsOnLoad) return true;
-        if (_isMouseOverControls) return true;
+        if (isMouseOverControls) return true;
         if (_isControlsTimedOut) return false;
         return true;
     });
+
+    let _controlsTimeoutTimerID: number | undefined = undefined;
+    const handleControlsTimeout = () =>
+    {
+        clearTimeout(_controlsTimeoutTimerID);
+
+        if (isMouseOverWrapper)
+        {
+            _isControlsTimedOut = false;
+
+            _controlsTimeoutTimerID = setTimeout(() =>
+            {
+                _isControlsTimedOut = true;
+            }, videoPlayerOptions.controlsTimeout);
+        }
+        else
+        {
+            _isControlsTimedOut = true;
+        }
+    };
+
+    /** Controls if cursor should be hidden or not (typically, after a period of inactivity). */
+    let isCursorHidden = $state(false);
+
+    let _cursorTimeoutTimerID: number | undefined = undefined;
+    const handleCursorIdling = () =>
+    {
+        isCursorHidden = false;
+
+        clearTimeout(_cursorTimeoutTimerID);
+
+        _cursorTimeoutTimerID = setTimeout(() =>
+        {
+            isCursorHidden = true;
+        }, videoPlayerOptions.cursorInactivityTimeout);
+    };
 
 
     /** If video is currently paused. */
@@ -83,24 +115,6 @@
     let muted = $state(false);
 
 
-    const handleMouseMove = (ev: MouseEvent) =>
-    {
-        if (_isMouseOverWrapper)
-        {
-            _isControlsTimedOut = false;
-            clearTimeout(_mouseMovementTimerId);
-            _mouseMovementTimerId = setTimeout(() =>
-            {
-                _isControlsTimedOut = true;
-            }, 2000); // timeout for hiding controls
-        }
-        else
-        {
-            clearTimeout(_mouseMovementTimerId);
-            _isControlsTimedOut = true;
-        }
-    };
-
 
     onMount(() =>
     {
@@ -108,35 +122,6 @@
         document.addEventListener('DOMContentLoaded', () =>
         {
             video.append(...$host().children);
-        });
-
-
-        video.addEventListener('timeupdate', () =>
-        {
-            for (const ce of canvasElements)
-            {
-                let shouldShow = false;
-
-                if (Array.isArray(ce.dt))
-                {
-                    shouldShow = ce.dt.some(v => isTimeInTimeframe(currentTime, { start: v.showAt, end: v.hideAt }));
-                }
-                else
-                {
-                    shouldShow = isTimeInTimeframe(currentTime, { start: ce.dt.showAt, end: ce.dt.hideAt });
-                }
-
-                if (!ce.isMounted && shouldShow)
-                {
-                    canvas.append(ce.e);
-                    ce.isMounted = true;
-                }
-                else if (ce.isMounted && !shouldShow)
-                {
-                    canvas.querySelector(`.${canvasElementIDClassTemplate}${ce.id}`)?.remove();
-                    ce.isMounted = false;
-                }
-            }
         });
     });
 </script>
@@ -147,7 +132,16 @@
 <!-- #region HTML
 -->
 <svelte:window
-    onmousemove={handleMouseMove}
+    onmousemove={() =>
+    {
+        handleControlsTimeout();
+        handleCursorIdling();
+    }}
+
+    onmousedown={() =>
+    {
+        handleCursorIdling();
+    }}
 />
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -157,8 +151,10 @@
 
     aria-label="video player"
 
-    onmouseenter={() => (_showControlsOnLoad = false, _isMouseOverWrapper = true)}
-    onmouseleave={() => _isMouseOverWrapper = false}
+    style:cursor={isCursorHidden ? 'none' : null}
+
+    onmouseenter={() => (_showControlsOnLoad = false, isMouseOverWrapper = true)}
+    onmouseleave={() => isMouseOverWrapper = false}
 >
     <!-- svelte-ignore a11y_media_has_caption -->
     <video
@@ -175,6 +171,11 @@
         {src}
 
         {...rest}
+
+        ontimeupdate={(ev) =>
+        {
+            manageCanvasElementsOnTimeupdate(ev, canvas, canvasElements);
+        }}
     >
         <slot>dummy</slot>
     </video>
@@ -188,8 +189,8 @@
             style:visibility={isControlsVisible ? 'visible' : 'hidden'}
             style:opacity={isControlsVisible ? '1' : '0'}
 
-            onmouseenter={() => _isMouseOverControls = true}
-            onmouseleave={() => _isMouseOverControls = false}
+            onmouseenter={() => isMouseOverControls = true}
+            onmouseleave={() => isMouseOverControls = false}
         >
             <Controls
                 wrapperElement={wrapper}

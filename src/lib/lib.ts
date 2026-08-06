@@ -7,6 +7,7 @@ export function isNil(v: unknown): v is Nil
     return false;
 }
 
+
 export function isTimeInTimeframe(t: number, frame: { start?: number, end?: number }): boolean
 {
     frame.start ??= 0;
@@ -16,33 +17,6 @@ export function isTimeInTimeframe(t: number, frame: { start?: number, end?: numb
     if (Number.isNaN(frame.end) || frame.end < frame.start) frame.end = frame.start;
 
     return t >= frame.start && t < frame.end;
-}
-
-/**
- * @param e target element to put in fullscreen.
- */
-export async function toggleFullscreen(e: HTMLElement): Promise<boolean>
-{
-    if (document.fullscreenElement === null)
-    {
-        try
-        {
-            await e.requestFullscreen();
-            return true;
-        }
-        catch (err)
-        {
-            console.error(err);
-            return false;
-        }
-    }
-    else
-    {
-        // also async and can reject, but its fine?
-        // (possible) todo: handle error
-        await document.exitFullscreen();
-        return false;
-    }
 }
 
 /**
@@ -68,4 +42,36 @@ export function toISODuration(t: number): string
     if (s > 0 || duration === 'PT') duration += `${s}S`;
 
     return duration;
+}
+
+/**
+ * Formats duration as `hh:mm:ss`.
+ *
+ * @param t duration in seconds.
+ */
+export function toHHMMSSDuration(t: number): string
+{
+    if (!Number.isFinite(t) || t < 0)
+    {
+        return '';
+    }
+
+    t = Math.trunc(t);
+
+    const hours = Math.floor(t / 3600);
+    const minutes = Math.floor((t % 3600) / 60);
+    const seconds = t % 60;
+
+    let s = String(seconds).padStart(2, '0');
+
+    if (hours <= 0)
+    {
+        s = `${String(minutes)}:${s}`;
+    }
+    else
+    {
+        s = `${String(hours)}:${String(minutes).padStart(2, '0')}:${s}`;
+    }
+
+    return s;
 }

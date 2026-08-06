@@ -1,10 +1,18 @@
 /* General options ***********************************************************/
 
 export interface VideoPlayerOptions {
+    /** Timeout (in ms) for hiding controls when not hovering or moving mouse. */
+    controlsTimeout: number;
+    /** Time (in ms) in which cursor should be hidden due to inactivity. */
+    cursorInactivityTimeout: number;
+
     jumpValue: number;
 }
 
 export const videoPlayerOptions = $state<VideoPlayerOptions>({
+    controlsTimeout: 2000,
+    cursorInactivityTimeout: 4000,
+
     jumpValue: 5,
 });
 
