@@ -5,17 +5,14 @@ Simple wrapper over native HTML5 video element.
 
 ## HTML
 
-Player element (`<video-player></video-player>`) have some standart properties from HTMLVideoElement (`src`, `controls`, etc.).
-
-On top of that, it also accepts next custom properties:
-- `hideprogress` — hides progress bar and disables related key bindings.
+Player element (`<video-player></video-player>`) have some standart properties from HTMLVideoElement (`src`, `controls`, etc. — see [`VideoPlayerProperties`](./src/types/global.d.ts#VideoPlayerProperties)) but not all of them (yet).
 
 
 ## Scripting
 
 Reference to the underlying `HTMLVideoElement` can be obtained via [shadow DOM's root](https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_shadow_DOM#element.shadowroot_and_the_mode_option).
 
-Player allows custom controls to be displayed on top of the video (using [`addElementToCanvas`](./src/lib/shared.svelte.ts#addElementToCanvas) or [`clearCanvas`](./src/lib/shared.svelte.ts#clearCanvas), for example). The custom controls themselves can be just plain `HTMLElement`s.
+Player allows custom controls to be displayed on top of the video (see [`VideoPlayerMethods`](./src/types/global.d.ts#VideoPlayerMethods)). The custom controls themselves can be just plain `HTMLElement`s.
 
 
 ## Styling

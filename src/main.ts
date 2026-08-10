@@ -1,5 +1,5 @@
 export type { VideoPlayerElement } from './types/global';
 
-import VideoPlayer from './VideoPlayer.svelte';
+import Main from './Main.svelte';
 
-export default VideoPlayer;
+export default Main;

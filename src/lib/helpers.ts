@@ -1,5 +1,6 @@
 import { isTimeInTimeframe } from './lib';
-import { canvasElementIDClassTemplate, type CanvasElement } from './shared.svelte';
+import { canvasElementIDClassTemplate } from '../shared.svelte';
+import type { CanvasElement } from '../types/global';
 
 
 /** Returns number in range 0 to 1, which indicates current progress. */
@@ -14,14 +15,8 @@ export function getMediaTimeRatio(currentTime: number, duration: number): number
     return 0;
 }
 
-export function manageCanvasElementsOnTimeupdate(ev: Event, canvas: HTMLElement, canvasElements: CanvasElement[])
+export function manageCanvasElementsOnTimeupdate(video: HTMLVideoElement, canvas: HTMLElement, canvasElements: CanvasElement[])
 {
-    const video = ev.currentTarget as HTMLVideoElement;
-    if (!(video instanceof HTMLVideoElement))
-    {
-        throw new TypeError(`Cannot manage canvas elements on timeupdate event: event handler are not attached to HTMLVideoElement.`);
-    }
-
     for (const ce of canvasElements)
     {
         let shouldShow = false;

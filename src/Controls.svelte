@@ -3,8 +3,8 @@
 <script lang="ts">
     import { toHHMMSSDuration, toISODuration } from './lib/lib';
     import { getMediaTimeRatio } from './lib/helpers';
-    import { videoPlayerOptions } from './lib/shared.svelte';
     import { togglePlayback, toggleFullscreen } from './lib/HTMLElement_helpers';
+    import type { VideoPlayerOptions } from './types/global';
 
     import InputRange from './Components/InputRange.svelte';
 
@@ -28,6 +28,8 @@
         muted: boolean;
 
         isProgressDisabled?: boolean;
+
+        options: VideoPlayerOptions;
     }
 
     let {
@@ -41,6 +43,8 @@
         muted = $bindable(),
 
         isProgressDisabled = false,
+
+        options,
     }: Props = $props();
 
 
@@ -83,7 +87,7 @@
 
                 if (!isProgressDisabled)
                 {
-                    currentTime -= videoPlayerOptions.jumpValue;
+                    currentTime -= options.playbackJumpValue;
                 }
 
                 break;
@@ -95,7 +99,7 @@
 
                 if (!isProgressDisabled)
                 {
-                    currentTime += videoPlayerOptions.jumpValue;
+                    currentTime += options.playbackJumpValue;
                 }
 
                 break;
