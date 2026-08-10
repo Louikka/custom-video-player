@@ -6,12 +6,8 @@ import dts from 'unplugin-dts/vite';
 // https://vite.dev/config/
 export default defineConfig({
     plugins: [
-        svelte({
-            compilerOptions: {
-                customElement: true,
-            },
-        }),
-        dts({ 
+        svelte(),
+        dts({
             bundleTypes: true,
             tsconfigPath: './tsconfig.app.json',
         }),

@@ -1,10 +1,5 @@
-export {
-    addElementToCanvas,
-    clearCanvas,
-    removeElementFromCanvas,
-    setJumpValue
-} from './lib/shared.svelte';
+export type { VideoPlayerElement } from './types/global';
 
 import VideoPlayer from './VideoPlayer.svelte';
 
-export { VideoPlayer };
+export default VideoPlayer;

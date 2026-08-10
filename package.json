@@ -6,7 +6,8 @@
   "exports": {
     ".": {
       "import": "./dist/video-player.js",
-      "browser": "./dist/video-player.iife.js"
+      "browser": "./dist/video-player.iife.js",
+      "types": "./dist/video-player.d.ts"
     }
   },
   "type": "module",
