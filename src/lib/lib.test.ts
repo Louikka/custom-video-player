@@ -1,5 +1,33 @@
 import { expect, test } from 'vitest';
-import { isNil, isTimeInTimeframe, toHHMMSSDuration, toISODuration } from './lib';
+import {
+    clamp,
+    isNil,
+    isTimeInTimeframe,
+    toHHMMSSDuration,
+    toISODuration
+} from './lib';
+
+
+test.for([
+    { v: 2, min: 0, max: 5, expected: 2 },
+    { v: 0, min: 0, max: 5, expected: 0 },
+    { v: 5, min: 0, max: 5, expected: 5 },
+    { v: -1, min: 0, max: 5, expected: 0 },
+    { v: 6, min: 0, max: 5, expected: 5 },
+    { v: 10, min: 0, max: Infinity, expected: 10 },
+    { v: -10, min: -Infinity, max: 0, expected: -10 },
+    { v: NaN, min: 0, max: 5, expected: NaN },
+])(`clamp($v, $min, $max) => $expected`, ({ v, min, max, expected }) =>
+{
+    if (Number.isNaN(expected))
+    {
+        expect(clamp(v, min, max)).toBeNaN();
+    }
+    else
+    {
+        expect(clamp(v, min, max)).toBeCloseTo(expected);
+    }
+});
 
 
 test.for([

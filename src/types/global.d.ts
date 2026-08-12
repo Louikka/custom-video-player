@@ -1,5 +1,11 @@
-import type { Component } from 'svelte';
-import type { HTMLVideoAttributes } from 'svelte/elements';
+import { VideoPlayer } from '../lib/components/video-player';
+
+
+declare global {
+    interface HTMLElementTagNameMap {
+        'video-player': VideoPlayer;
+    }
+}
 
 
 export interface VideoPlayerOptions {
@@ -11,37 +17,6 @@ export interface VideoPlayerOptions {
     /** In seconds. */
     playbackJumpValue: number;
 }
-
-
-export interface VideoPlayerProperties {
-    autoplay?: HTMLVideoAttributes['autoplay'];
-    controls?: HTMLVideoAttributes['controls'];
-    controlsList?: HTMLVideoAttributes['controlslist'] | 'noprogressbar';
-    // crossOrigin?: HTMLVideoAttributes['crossorigin'];
-    // disablePictureInPicture?: HTMLVideoAttributes['disablepictureinpicture'];
-    // disableRemotePlayback?: HTMLVideoAttributes['disableremoteplayback'];
-    // loading?: any;
-    // loop?: HTMLVideoAttributes['loop'];
-    // muted?: HTMLVideoAttributes['muted'];
-    // poster?: HTMLVideoAttributes['poster'];
-    // preload?: HTMLVideoAttributes['preload'];
-    src?: HTMLVideoAttributes['src'];
-}
-
-export interface VideoPlayerMethods {
-    /**
-     * @param e element that should be displayed on canvas.
-     * @param dt timings to display element.
-     * @param id optional ID for element (required to be able to delete element from canvas).
-     */
-    addElementToCanvas(e: HTMLElement, dt: DisplayTiming | DisplayTiming[], id?: string): void;
-
-    removeElementFromCanvas(id: string): void;
-
-    clearCanvas(): void;
-}
-
-export type VideoPlayerElement = HTMLElement & NonNullable<Component['element']> & VideoPlayerProperties & VideoPlayerMethods;
 
 
 export interface DisplayTiming {

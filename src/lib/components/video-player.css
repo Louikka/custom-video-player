@@ -1,0 +1,60 @@
+/* Element can be customized via custom CSS custom properties. */
+/**
+ * --video-player-bg — background color
+ * --video-player-bg-hover — background color for hovered elements
+ * --video-player-border — border color
+ * --video-player-color — color of the text/icons
+ * --video-player-accent-color — accent color
+**/
+
+._w {
+    position : relative;
+
+    width : 100%;
+    height : 100%;
+
+    display : block;
+
+    font-family :
+        system-ui,
+        'Segoe UI',
+        Roboto,
+        Helvetica,
+        Arial,
+        sans-serif,
+        'Apple Color Emoji',
+        'Segoe UI Emoji';
+    line-height : 1.15;
+    -webkit-text-size-adjust : 100%;
+}
+
+video {
+    width : 100%;
+    height : 100%;
+
+    display : block;
+}
+
+.canvas {
+    position : absolute;
+    top : 0;
+    left : 0;
+
+    width : 100%;
+    height : 100%;
+}
+
+.controls {
+    position : absolute;
+    bottom : 0;
+    left : 50%;
+    transform : translateX(-50%);
+
+    width : 70%;
+    max-width : 80rem;
+    padding : 1% 2%;
+
+    transition :
+        visibility .1s ease,
+        opacity .1s ease;
+}

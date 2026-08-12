@@ -1,5 +1,5 @@
 import { isTimeInTimeframe } from './lib';
-import { canvasElementIDClassTemplate } from '../shared.svelte';
+import { canvasElementIDClassTemplate } from './shared';
 import type { CanvasElement } from '../types/global';
 
 

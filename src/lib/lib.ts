@@ -7,6 +7,11 @@ export function isNil(v: unknown): v is Nil
     return false;
 }
 
+export function clamp(val: number, min: number, max: number): number
+{
+    return Math.min(Math.max(val, min), max);
+}
+
 
 export function isTimeInTimeframe(t: number, frame: { start?: number, end?: number }): boolean
 {
@@ -74,4 +79,9 @@ export function toHHMMSSDuration(t: number): string
     }
 
     return s;
+}
+
+export function calculateDefaultValue(min: number, max: number): number
+{
+    return (max < min) ? min : min + (max - min) / 2;
 }

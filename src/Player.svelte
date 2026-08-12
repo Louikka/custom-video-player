@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { onMount, tick } from 'svelte';
+    import { onMount } from 'svelte';
     import { manageCanvasElementsOnTimeupdate } from './lib/helpers';
     import { isNil } from './lib/lib';
     import type { CanvasElement, VideoPlayerOptions, VideoPlayerProperties } from './types/global';
@@ -46,8 +46,6 @@
         if (_isControlsTimedOut) return false;
         return true;
     });
-
-    const isProgressDisabled = $derived(controlsList === 'noprogressbar');
 
     let _controlsTimeoutTimerID: number | undefined = undefined;
     const handleControlsTimeout = () =>
@@ -180,7 +178,7 @@
                 bind:paused
                 bind:volume
                 bind:muted
-                {isProgressDisabled}
+                {controlsList}
                 {options}
             />
         </div>
