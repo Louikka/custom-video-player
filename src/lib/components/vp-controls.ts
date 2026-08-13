@@ -1,4 +1,4 @@
-import { LitElement, html, unsafeCSS } from 'lit';
+import { LitElement, html, nothing, unsafeCSS } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { unsafeSVG } from 'lit/directives/unsafe-svg.js';
 import type { Ref } from 'lit/directives/ref.js';
@@ -23,10 +23,16 @@ export class VPControls extends LitElement
     static override styles = unsafeCSS(styles);
 
 
+    //#region Properties and attributes
+
     @property({ attribute: false }) public wrapperElementRef?: Ref<HTMLElement>;
     @property({ attribute: false }) public videoElementRef?: Ref<HTMLVideoElement>;
 
-    @property({ attribute: false }) public vCurrentTime = 0;
+
+    /* Video time and duration */
+
+    @property({ attribute: false }) public vCurrentTime = NaN;
+    @property({ attribute: false }) public vDuration = NaN;
     @property({ attribute: false }) public vPaused = true;
 
     private get vCurrentTimeSafe()
@@ -34,29 +40,22 @@ export class VPControls extends LitElement
         return Number.isNaN(this.vCurrentTime) ? 0 : this.vCurrentTime;
     }
 
-    private get vDuration()
-    {
-        const video = this.videoElementRef?.value;
-        if (video !== undefined && Number.isFinite(video.duration))
-        {
-            return video.duration;
-        }
-        else
-        {
-            return 0;
-        }
-    }
     private get isVideoDurationFinite()
     {
-        const video = this.videoElementRef?.value;
-        return video !== undefined && Number.isFinite(video.duration);
+        return Number.isFinite(this.vDuration);
+    }
+    private get vDurationSafe()
+    {
+        return this.isVideoDurationFinite ? this.vDuration : 0;
     }
 
     private get videoTimeRatio()
     {
-        return getMediaTimeRatio(this.vCurrentTime, this.vDuration);
+        return getMediaTimeRatio(this.vCurrentTime, this.vDurationSafe);
     }
 
+
+    /* Video volume */
 
     private _volumeInitialValue = 1;
     private _previousVolume = this._volumeInitialValue;
@@ -117,8 +116,17 @@ export class VPControls extends LitElement
     }
 
 
+    /* Video fullscreen */
+
     @state() private isVideoInFullscreen = false;
 
+    //#endregion
+
+
+
+    //#region Events
+
+    /* Event handlers */
 
     private async onPlayButtonClick(ev: PointerEvent)
     {
@@ -136,7 +144,7 @@ export class VPControls extends LitElement
         const video = this.videoElementRef?.value;
         if (video !== undefined)
         {
-            const currentTime = this.vDuration * Number(input.value);
+            const currentTime = this.vDurationSafe * Number(input.value);
             this.vCurrentTime = currentTime;
             video.currentTime = currentTime;
         }
@@ -178,6 +186,7 @@ export class VPControls extends LitElement
     }
 
 
+    // Arrow function needed specifically, so that context won't get messed up
     private handleKeyboardInput = (ev: KeyboardEvent) =>
     {
         const wrapper = this.wrapperElementRef?.value;
@@ -187,7 +196,7 @@ export class VPControls extends LitElement
         {
             case ' ':
             {
-                if (video !== undefined) togglePlayback(video);
+                if (video) togglePlayback(video);
                 break;
             }
 
@@ -247,9 +256,13 @@ export class VPControls extends LitElement
                 break;
             }
         }
-    }
+    };
+
+    //#endregion
 
 
+
+    //#region Main render
 
     override connectedCallback()
     {
@@ -261,6 +274,68 @@ export class VPControls extends LitElement
     {
         window.removeEventListener('keydown', this.handleKeyboardInput);
         super.disconnectedCallback();
+    }
+
+
+
+    private constructProcessBar(isDisabled = false)
+    {
+        if (isDisabled)
+        {
+            let maybeDuration;
+
+            if (this.isVideoDurationFinite)
+            {
+                maybeDuration = html`
+                    /
+                    <time datetime=${toISODuration(this.vDuration)}>
+                        ${toHHMMSSDuration(this.vDuration)}
+                    </time>
+                `;
+            }
+
+            return html`
+                <div class="time">
+                    <time datetime=${toISODuration(this.vCurrentTimeSafe)}>
+                        ${toHHMMSSDuration(this.vCurrentTimeSafe)}
+                    </time>
+                    ${maybeDuration}
+                </div>
+                <div style="flex-grow:1"></div>
+            `;
+        }
+        else
+        {
+            return html`
+                <div class="time">
+                    <time datetime=${toISODuration(this.vCurrentTimeSafe)}>
+                        ${toHHMMSSDuration(this.vCurrentTimeSafe)}
+                    </time>
+                </div>
+                <div class="input">
+                    <div class="input-range">
+                        <progress max="1" value=${this.videoTimeRatio}>
+                            ${this.videoTimeRatio * 100}%
+                        </progress>
+                        <input
+                            type="range"
+                            min="0"
+                            max="1"
+                            step="any"
+                            .value=${this.videoTimeRatio}
+                            @input=${this.onPropgressBarInput}
+                            @mousedown=${this.onPropgressBarMouseDown}
+                            @mouseup=${this.onPropgressBarMouseUp}
+                        />
+                    </div>
+                </div>
+                <div class="time">
+                    <time datetime=${toISODuration(this.vDurationSafe)}>
+                        ${toHHMMSSDuration(this.vDurationSafe)}
+                    </time>
+                </div>
+            `;
+        }
     }
 
     protected override render()
@@ -280,33 +355,7 @@ export class VPControls extends LitElement
                 </div>
 
                 <div class="progress">
-                    <div class="time">
-                        <time datetime=${toISODuration(this.vCurrentTimeSafe)}>
-                            ${toHHMMSSDuration(this.vCurrentTimeSafe)}
-                        </time>
-                    </div>
-                    <div class="input">
-                        <div class="input-range">
-                            <progress max="1" value=${this.videoTimeRatio}>
-                                ${this.videoTimeRatio * 100}%
-                            </progress>
-                            <input
-                                type="range"
-                                min="0"
-                                max="1"
-                                step="any"
-                                .value=${this.videoTimeRatio}
-                                @input=${this.onPropgressBarInput}
-                                @mousedown=${this.onPropgressBarMouseDown}
-                                @mouseup=${this.onPropgressBarMouseUp}
-                            />
-                        </div>
-                    </div>
-                    <div class="time">
-                        <time datetime=${toISODuration(this.vDuration)}>
-                            ${toHHMMSSDuration(this.vDuration)}
-                        </time>
-                    </div>
+                    ${this.constructProcessBar()}
                 </div>
 
                 <div class="volume">
@@ -353,4 +402,6 @@ export class VPControls extends LitElement
             </div>
         `;
     }
+
+    //#endregion
 }
