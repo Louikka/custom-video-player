@@ -5,7 +5,7 @@ Simple wrapper over native HTML5 video element.
 
 ## HTML
 
-Player element (`<video-player></video-player>`) have some standart properties from HTMLVideoElement (`src`, `controls`, etc.) but not all of them (yet).
+Player element (`<video-player>`) have some standart attributes and properties from HTMLVideoElement (`src`, `controls`, etc.) but not all of them (yet). The aim is to fully mimic standart `<video>` element.
 
 
 ## Scripting

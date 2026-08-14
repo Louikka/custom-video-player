@@ -35,7 +35,7 @@ interface VideoPlayerCanvas {
 }
 
 @customElement('video-player')
-export class VideoPlayer extends LitElement
+export class VideoPlayerElement extends LitElement
 {
     static override styles = unsafeCSS(styles);
 
@@ -45,7 +45,11 @@ export class VideoPlayer extends LitElement
     private canvasElementRef: Ref<HTMLElement> = createRef();
 
 
-    @property({ type: Boolean }) public controls: boolean = false;
+    @property({ type: Boolean }) public autoplay = false;
+    @property({ type: Boolean }) public controls = false;
+    //@property({ type: String }) public controlsList?: string;
+    @property({ type: Boolean }) public loop = false;
+    @property({ type: Boolean }) public muted = false;
     @property({ type: String }) public src?: string;
 
     @property({ attribute: false }) public currentTime = NaN;
@@ -58,6 +62,7 @@ export class VideoPlayer extends LitElement
     }
 
     @property({ attribute: false }) public paused = true;
+    @property({ attribute: false }) public volume = 1;
 
     @property({ attribute: false })
     public readonly canvas: VideoPlayerCanvas = {
@@ -181,6 +186,13 @@ export class VideoPlayer extends LitElement
         this.paused = e.paused;
     }
 
+    private onMediaVolumeChange(ev: Event)
+    {
+        const e = ev.currentTarget as HTMLMediaElement;
+        this.muted = e.muted;
+        this.volume = e.volume;
+    }
+
     private onVideoTimeUpdate(ev: Event)
     {
         const video = ev.currentTarget as HTMLVideoElement;
@@ -239,6 +251,9 @@ export class VideoPlayer extends LitElement
                 <video
                     ${ref(this.videoElementRef)}
 
+                    ?autoplay=${this.autoplay}
+                    ?loop=${this.loop}
+                    ?muted=${this.muted}
                     src=${this.src ?? nothing}
 
                     @durationchange=${this.onMediaDurationChange}
@@ -246,6 +261,7 @@ export class VideoPlayer extends LitElement
                     @pause=${this.onMediaPauseOrPlay}
                     @play=${this.onMediaPauseOrPlay}
                     @timeupdate=${this.onVideoTimeUpdate}
+                    @volumechange=${this.onMediaVolumeChange}
                 >
                     <!-- TODO: correctly implement slotted content (sources) -->
                     <!-- <slot></slot> -->
