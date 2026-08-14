@@ -18,7 +18,7 @@ import icon_fullscreen_exit from '../../assets/icons/videojs-v10/default/fullscr
 
 
 @customElement('vp-controls')
-export class VPControls extends LitElement
+export class VPControlsElement extends LitElement
 {
     static override styles = unsafeCSS(styles);
 
