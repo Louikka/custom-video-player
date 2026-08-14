@@ -5,14 +5,14 @@ Simple wrapper over native HTML5 video element.
 
 ## HTML
 
-Player element (`<video-player></video-player>`) have some standart properties from HTMLVideoElement (`src`, `controls`, etc. — see [`VideoPlayerProperties`](./src/types/global.d.ts#VideoPlayerProperties)) but not all of them (yet).
+Player element (`<video-player></video-player>`) have some standart properties from HTMLVideoElement (`src`, `controls`, etc.) but not all of them (yet).
 
 
 ## Scripting
 
 Reference to the underlying `HTMLVideoElement` can be obtained via [shadow DOM's root](https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_shadow_DOM#element.shadowroot_and_the_mode_option).
 
-Player allows custom controls to be displayed on top of the video (see [`VideoPlayerMethods`](./src/types/global.d.ts#VideoPlayerMethods)). The custom controls themselves can be just plain `HTMLElement`s.
+Player allows custom controls to be displayed on top of the video (see [`canvas` property](./src/lib/components/video-player.ts#VideoPlayerCanvas)). The custom controls themselves can be just plain `HTMLElement`s.
 
 
 ## Styling
@@ -31,4 +31,4 @@ Available properties to edit:
 
 ## Important notes
 
-Video player can have child `<source />` elements, but only if they appended *before* `DOMContentLoaded` event was fired. Setting `src` attribute on player itself though will work as expected.
+`<source />` elements are not supported, only `src` attribute on the player itself.
