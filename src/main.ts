@@ -1,1 +1,1 @@
-export { VideoPlayer } from './lib/components/video-player';
+export { VideoPlayerElement } from './lib/components/video-player.js';

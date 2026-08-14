@@ -2,11 +2,11 @@ import { LitElement, html, nothing, unsafeCSS } from 'lit';
 import { customElement, property, query, state } from 'lit/decorators.js';
 import { createRef, ref, type Ref } from 'lit/directives/ref.js';
 import { styleMap, type StyleInfo } from 'lit/directives/style-map.js';
-import type { CanvasElement, DisplayTiming } from '../../types/global';
-import { canvasElementIDClassTemplate } from '../shared';
-import { manageCanvasElementsOnTimeupdate } from '../helpers';
+import { canvasElementIDClassTemplate } from '../shared.js';
+import { manageCanvasElementsOnTimeupdate } from '../helpers.js';
+import type { CanvasElement, DisplayTiming } from '../../types/T.js';
 
-import './vp-controls';
+import './vp-controls.js';
 
 import styles from './video-player.css?inline';
 
@@ -286,5 +286,12 @@ export class VideoPlayerElement extends LitElement
                 </div>
             </div>
         `;
+    }
+}
+
+
+declare global {
+    interface HTMLElementTagNameMap {
+        'video-player': VideoPlayerElement;
     }
 }

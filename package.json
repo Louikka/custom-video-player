@@ -5,9 +5,8 @@
   "license": "Apache-2.0",
   "exports": {
     ".": {
-      "import": "./dist/video-player.js",
-      "browser": "./dist/video-player.iife.js",
-      "types": "./dist/video-player.d.ts"
+      "default": "./dist/main.js",
+      "types": "./dist/main.d.ts"
     }
   },
   "type": "module",
@@ -16,7 +15,7 @@
     "url": "git+https://github.com/Louikka/custom-video-player.git"
   },
   "scripts": {
-    "build": "vite build",
+    "build": "tsdown",
     "check": "tsc",
     "test": "vitest",
     "prepare": "npm run build"
@@ -25,12 +24,14 @@
     "lit": "^3.3.3"
   },
   "devDependencies": {
-    "@microsoft/api-extractor": "^7.58.12",
-    "@types/node": "^24.12.3",
+    "@tsdown/css": "^0.22.14",
+    "tsdown": "^0.22.14",
     "typescript": "~6.0.2",
-    "unplugin-dts": "^1.0.3",
-    "vite": "^8.0.12",
+    "unplugin-raw": "^0.7.0",
     "vitest": "^4.1.9"
+  },
+  "inlinedDependencies": {
+    "lit-html": "3.3.3"
   },
   "private": true
 }

@@ -1,10 +1,10 @@
-import { LitElement, html, nothing, unsafeCSS } from 'lit';
+import { LitElement, html, unsafeCSS } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { unsafeSVG } from 'lit/directives/unsafe-svg.js';
 import type { Ref } from 'lit/directives/ref.js';
-import { toggleFullscreen, togglePlayback } from '../toggles';
-import { clamp, toHHMMSSDuration, toISODuration } from '../lib';
-import { getMediaTimeRatio } from '../helpers';
+import { toggleFullscreen, togglePlayback } from '../toggles.js';
+import { clamp, toHHMMSSDuration, toISODuration } from '../lib.js';
+import { getMediaTimeRatio } from '../helpers.js';
 
 import styles from './vp-controls.css?inline';
 
