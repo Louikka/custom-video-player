@@ -1,0 +1,180 @@
+._w {
+    width : 100%;
+    padding : .25rem;
+
+    display : flex;
+    gap : .2rem;
+    flex-wrap : nowrap;
+    align-items : center;
+
+    background-color : var(--video-player-bg, rgb(8 8 8));
+    border : 1px solid var(--video-player-border, rgb(255 255 255 / .3));
+    border-radius : calc(infinity * 1px);
+
+    color : var(--video-player-color, whitesmoke);
+}
+
+
+._w .button {
+    height : 2rem;
+    aspect-ratio : 1/1;
+    padding : .33rem;
+
+    background-color : transparent;
+    border: none;
+    border-radius : calc(infinity * 1px);
+    cursor : pointer;
+
+    color : currentcolor;
+}
+._w .button:hover {
+    background-color : var(--video-player-bg-hover, rgb(255 255 255 / .1));
+}
+._w .button > svg {
+    width : 100%;
+    height : 100%;
+
+    display : block;
+}
+
+
+._w > .play {
+    display : flex;
+    flex-wrap : nowrap;
+    align-items : center;
+}
+
+._w > .progress {
+    width : 100%;
+    padding : 0 .333rem;
+
+    display : flex;
+    align-items : center;
+    gap : .333rem;
+}
+._w > .progress > .time {
+    /* fix wierd alignment? */
+    padding-bottom : 1px;
+}
+._w > .progress > .input {
+    width : 100%;
+}
+
+._w > .volume {
+    position : relative;
+
+    border-radius : calc(infinity * 1px);
+}
+._w > .volume .button {
+    position : relative;
+    z-index : 1;
+}
+._w > .volume .volume-bar-wrapper {
+    position : absolute;
+    top : 20%;
+    left : 50%;
+    transform : translateY(-50%) rotate(-90deg);
+    transform-origin : center left;
+
+    padding : .5rem .5rem .5rem 1.25rem;
+
+    display : none;
+}
+._w > .volume:hover .volume-bar-wrapper {
+    display : initial;
+}
+._w > .volume .volume-bar {
+    width : 100px;
+    height : 30px;
+    padding : 0 .6rem;
+
+    background-color : var(--video-player-bg, rgb(8 8 8));
+    border : 1px solid var(--video-player-border, rgb(255 255 255 / .3));
+    border-radius : calc(infinity * 1px);
+}
+
+._w > .c {
+    display : flex;
+    flex-wrap : nowrap;
+    align-items : center;
+}
+
+
+
+.input-range {
+    --thickness : 4px;
+    --thumb-size : 12px;
+
+    position: relative;
+
+    width : 100%;
+    height : 100%;
+
+    display : flex;
+    align-items : center;
+}
+
+.input-range :is(progress, meter) {
+    width : 100%;
+    height : var(--thickness);
+    margin : 0 calc(var(--thumb-size) / 2);
+
+    appearance: none;
+    background-color : currentcolor;
+    border : none;
+    border-radius : calc(infinity * 1px);
+
+    color : inherit;
+}
+
+.input-range progress::-webkit-progress-bar,
+.input-range progress::-moz-progress-bar,
+.input-range meter::-webkit-meter-bar,
+.input-range meter::-moz-meter-bar {
+    height : var(--thickness);
+
+    background : currentcolor;
+    background-color : currentcolor;
+    border-radius : calc(infinity * 1px);
+}
+.input-range progress::-webkit-progress-value,
+.input-range meter::-webkit-meter-optimum-value,
+.input-range meter::-webkit-meter-suboptimum-value,
+.input-range meter::-webkit-meter-even-less-good-value {
+    background : var(--video-player-accent-color, brown);
+    background-color : var(--video-player-accent-color, brown);
+    border-radius : calc(infinity * 1px);
+}
+
+.input-range input {
+    position : absolute;
+    top : 50%;
+    left : 0;
+    transform : translateY(-50%);
+
+    width : 100%;
+    margin : 0;
+
+    appearance : none;
+    background-color : transparent;
+    outline : none;
+    cursor : pointer;
+
+    color : inherit;
+}
+
+.input-range input::-webkit-slider-thumb {
+    width : var(--thumb-size);
+    aspect-ratio : 1/1;
+
+    appearance : none;
+    background-color : currentcolor;
+    border-radius : calc(infinity * 1px);
+}
+.input-range input::-moz-range-thumb {
+    width : var(--thumb-size);
+    height : var(--thumb-size);
+
+    border : none;
+}
+

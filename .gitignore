@@ -25,3 +25,4 @@ dist-ssr
 *.ini
 *.code-workspace
 *.mp4
+.env

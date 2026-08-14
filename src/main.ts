@@ -1,5 +1,1 @@
-export type { VideoPlayerElement } from './types/global';
-
-import Main from './Main.svelte';
-
-export default Main;
+export { VideoPlayer } from './lib/components/video-player';

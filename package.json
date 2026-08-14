@@ -16,20 +16,17 @@
     "url": "git+https://github.com/Louikka/custom-video-player.git"
   },
   "scripts": {
-    "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview",
-    "check": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json",
+    "check": "tsc",
     "test": "vitest",
     "prepare": "npm run build"
   },
+  "dependencies": {
+    "lit": "^3.3.3"
+  },
   "devDependencies": {
     "@microsoft/api-extractor": "^7.58.12",
-    "@sveltejs/vite-plugin-svelte": "^7.1.2",
-    "@tsconfig/svelte": "^5.0.8",
     "@types/node": "^24.12.3",
-    "svelte": "^5.55.5",
-    "svelte-check": "^4.4.8",
     "typescript": "~6.0.2",
     "unplugin-dts": "^1.0.3",
     "vite": "^8.0.12",
