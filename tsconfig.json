@@ -7,13 +7,18 @@
       "DOM"
     ],
     "types": [
-      "tsdown/client"
+      "vite/client"
     ],
 
     "moduleResolution": "nodenext",
     "moduleDetection": "force",
     "verbatimModuleSyntax": true,
+
     "noEmit": true,
+    "emitDeclarationOnly": true,
+    "declaration": true,
+    "declarationMap": true,
+
     "allowImportingTsExtensions": true,
     "allowArbitraryExtensions": true,
     "noUncheckedSideEffectImports": true,
@@ -34,6 +39,10 @@
     "useDefineForClassFields": false,
   },
   "include": [
-    "src"
+    "src",
+  ],
+  "exclude": [
+    "src/**/*.spec.ts",
+    "src/**/*.test.ts",
   ]
 }

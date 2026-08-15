@@ -1,6 +1,6 @@
-import { isTimeInTimeframe } from './lib';
-import { canvasElementIDClassTemplate } from './shared';
-import type { CanvasElement } from '../types/global';
+import { isTimeInTimeframe } from './lib.js';
+import { canvasElementIDClassTemplate } from './shared.js';
+import type { CanvasElement } from '../types/T.d.ts';
 
 
 /** Returns number in range 0 to 1, which indicates current progress. */
