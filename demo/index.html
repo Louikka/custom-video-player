@@ -5,11 +5,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <title>Video player test</title>
+    <title>Video player demo</title>
 
     <link rel="stylesheet" href="./modern-normalize.css" />
 
-    <script src="../dist/video-player.iife.js"></script>
+    <script src="../dist/index.iife.js"></script>
 
     <style>
         html {
@@ -43,17 +43,6 @@
     <script>
         /** @type {VideoPlayerElement} */
         const e = document.getElementById('player');
-
-        e.canvas.addChild((() =>
-        {
-            const e = document.createElement('button');
-            e.textContent = 'My button';
-            return e;
-        })(), { showAt: 1, hideAt: 5 });
-
-        e.currentTime = 6;
-
-        e.addEventListener('timeupdate', (ev) => console.log(ev.currentTarget));
     </script>
 </body>
 
