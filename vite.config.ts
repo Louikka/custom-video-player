@@ -1,4 +1,5 @@
 import { defineConfig } from 'vite';
+import minifyHTML from '@lit-labs/rollup-plugin-minify-html-literals';
 import dts from 'unplugin-dts/vite';
 
 
@@ -17,6 +18,7 @@ export default defineConfig({
         emptyOutDir: true,
     },
     plugins: [
+        minifyHTML(),
         dts({
             //bundleTypes: true,
         }),

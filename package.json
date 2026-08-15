@@ -25,6 +25,7 @@
     "lit": "^3.3.3"
   },
   "devDependencies": {
+    "@lit-labs/rollup-plugin-minify-html-literals": "^0.2.0",
     "@microsoft/api-extractor": "^7.58.12",
     "typescript": "~6.0.2",
     "unplugin-dts": "^1.0.3",
