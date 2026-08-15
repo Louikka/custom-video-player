@@ -34,6 +34,7 @@ interface VideoPlayerCanvas {
     removeAllChildren(): void;
 }
 
+
 @customElement('video-player')
 export class VideoPlayerElement extends LitElement
 {
@@ -45,6 +46,9 @@ export class VideoPlayerElement extends LitElement
     private canvasElementRef: Ref<HTMLElement> = createRef();
 
 
+
+    //#region Properties and attributes
+
     @property({ type: Boolean }) public autoplay = false;
     @property({ type: Boolean }) public controls = false;
     //@property({ type: String }) public controlsList?: string;
@@ -52,7 +56,28 @@ export class VideoPlayerElement extends LitElement
     @property({ type: Boolean }) public muted = false;
     @property({ type: String }) public src?: string;
 
-    @property({ attribute: false }) public currentTime = NaN;
+    @state() private _currentTime = NaN;
+    @property({ attribute: false })
+    public set currentTime(v)
+    {
+        const e = this.videoElementRef.value;
+        if (e)
+        {
+            e.currentTime = v;
+        }
+    }
+    public get currentTime()
+    {
+        const e = this.videoElementRef.value;
+        if (e)
+        {
+            return e.currentTime;
+        }
+        else
+        {
+            return NaN;
+        }
+    }
 
     @state() private _duration = NaN;
     @property({ attribute: false })
@@ -154,8 +179,11 @@ export class VideoPlayerElement extends LitElement
         }, 3000);
     }
 
+    //#endregion
 
-    /* Event handlers */
+
+
+    //#region Event handlers
 
     private onWindowMouseMove = (ev: MouseEvent) =>
     {
@@ -171,19 +199,44 @@ export class VideoPlayerElement extends LitElement
     {
         const e = ev.currentTarget as HTMLMediaElement;
         this._duration = e.duration;
+
+        this.dispatchEvent(new Event('durationchange', {
+            bubbles: true,
+            composed: true,
+        }));
     }
 
     private onMediaLoadedMetadata(ev: Event)
     {
         const e = ev.currentTarget as HTMLMediaElement;
-        this.currentTime = e.currentTime;
+        this._currentTime = e.currentTime;
         this._duration = e.duration;
+
+        this.dispatchEvent(new Event('loadedmetadata', {
+            bubbles: true,
+            composed: true,
+        }));
     }
 
     private onMediaPauseOrPlay(ev: Event)
     {
         const e = ev.currentTarget as HTMLMediaElement;
         this.paused = e.paused;
+
+        if (e.paused)
+        {
+            this.dispatchEvent(new Event('pause', {
+                bubbles: true,
+                composed: true,
+            }));
+        }
+        else
+        {
+            this.dispatchEvent(new Event('play', {
+                bubbles: true,
+                composed: true,
+            }));
+        }
     }
 
     private onMediaVolumeChange(ev: Event)
@@ -191,22 +244,36 @@ export class VideoPlayerElement extends LitElement
         const e = ev.currentTarget as HTMLMediaElement;
         this.muted = e.muted;
         this.volume = e.volume;
+
+        this.dispatchEvent(new Event('volumechange', {
+            bubbles: true,
+            composed: true,
+        }));
     }
 
     private onVideoTimeUpdate(ev: Event)
     {
         const video = ev.currentTarget as HTMLVideoElement;
 
-        this.currentTime = video.currentTime;
+        this._currentTime = video.currentTime;
 
         const canvasElement = this.canvasElementRef.value;
         if (canvasElement)
         {
             manageCanvasElementsOnTimeupdate(video, canvasElement, this.canvas.children);
         }
+
+        this.dispatchEvent(new Event('timeupdate', {
+            bubbles: true,
+            composed: true,
+        }));
     }
 
+    //#endregion
 
+
+
+    //#region Main render
 
     override connectedCallback()
     {
@@ -279,7 +346,7 @@ export class VideoPlayerElement extends LitElement
                     <vp-controls
                         .wrapperElementRef=${this.wrapperElementRef}
                         .videoElementRef=${this.videoElementRef}
-                        .vCurrentTime=${this.currentTime}
+                        .vCurrentTime=${this._currentTime}
                         .vDuration=${this.duration}
                         .vPaused=${this.paused}
                     ></vp-controls>
@@ -287,6 +354,8 @@ export class VideoPlayerElement extends LitElement
             </div>
         `;
     }
+
+    //#endregion
 }
 
 
