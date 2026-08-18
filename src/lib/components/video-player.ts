@@ -56,7 +56,6 @@ export class VideoPlayerElement extends LitElement
     @property({ type: Boolean }) public muted = false;
     @property({ type: String }) public src?: string;
 
-    @state() private _currentTime = NaN;
     @property({ attribute: false })
     public set currentTime(v)
     {
@@ -209,7 +208,6 @@ export class VideoPlayerElement extends LitElement
     private onMediaLoadedMetadata(ev: Event)
     {
         const e = ev.currentTarget as HTMLMediaElement;
-        this._currentTime = e.currentTime;
         this._duration = e.duration;
 
         this.dispatchEvent(new Event('loadedmetadata', {
@@ -254,8 +252,6 @@ export class VideoPlayerElement extends LitElement
     private onVideoTimeUpdate(ev: Event)
     {
         const video = ev.currentTarget as HTMLVideoElement;
-
-        this._currentTime = video.currentTime;
 
         const canvasElement = this.canvasElementRef.value;
         if (canvasElement)
@@ -346,9 +342,6 @@ export class VideoPlayerElement extends LitElement
                     <vp-controls
                         .wrapperElementRef=${this.wrapperElementRef}
                         .videoElementRef=${this.videoElementRef}
-                        .vCurrentTime=${this._currentTime}
-                        .vDuration=${this.duration}
-                        .vPaused=${this.paused}
                     ></vp-controls>
                 </div>
             </div>

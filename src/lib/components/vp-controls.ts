@@ -1,4 +1,4 @@
-import { LitElement, html, unsafeCSS } from 'lit';
+import { LitElement, html, unsafeCSS, type PropertyValues } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { unsafeSVG } from 'lit/directives/unsafe-svg.js';
 import type { Ref } from 'lit/directives/ref.js';
@@ -29,73 +29,53 @@ export class VPControlsElement extends LitElement
     @property({ attribute: false }) public videoElementRef?: Ref<HTMLVideoElement>;
 
 
-    /* Video time and duration */
+    /* Video current time */
 
-    @property({ attribute: false }) public vCurrentTime = NaN;
-    @property({ attribute: false }) public vDuration = NaN;
-    @property({ attribute: false }) public vPaused = true;
+    @state() private videoCurrentTime = NaN;
 
-    private get vCurrentTimeSafe()
+    private get videoCurrentTimeSafe()
     {
-        return Number.isNaN(this.vCurrentTime) ? 0 : this.vCurrentTime;
+        return Number.isNaN(this.videoCurrentTime) ? 0 : this.videoCurrentTime;
     }
+
+
+    /* Video duration */
+
+    @state() private videoDuration = NaN;
 
     private get isVideoDurationFinite()
     {
-        return Number.isFinite(this.vDuration);
+        return Number.isFinite(this.videoDuration);
     }
-    private get vDurationSafe()
+
+    private get videoDurationSafe()
     {
-        return this.isVideoDurationFinite ? this.vDuration : 0;
+        return this.isVideoDurationFinite ? this.videoDuration : 0;
     }
+
+
+    // When relying solely on events and callbacks, progress bar does not
+    // updates fast enough. This is a little helper that represent current
+    // time ratio. It is updated more often than `videoTimeRatio`.
+    @state() private _progressBarValue = 0;
 
     private get videoTimeRatio()
     {
-        return getMediaTimeRatio(this.vCurrentTime, this.vDurationSafe);
+        return getMediaTimeRatio(this.videoCurrentTime, this.videoDuration);
     }
+
+
+    /* Is video paused */
+
+    @state() private videoPaused = true;
 
 
     /* Video volume */
 
-    private _volumeInitialValue = 1;
-    private _previousVolume = this._volumeInitialValue;
+    private _videoVolumeInitialValue = 1;
+    private _videoPreviousVolume = this._videoVolumeInitialValue;
 
-    @state()
-    private set volume(v)
-    {
-        const video = this.videoElementRef?.value;
-        if (video !== undefined)
-        {
-            if (Number.isFinite(v))
-            {
-                video.volume = clamp(v, 0, 1);
-                if (video.volume <= 0)
-                {
-                    video.muted = true;
-                }
-                else
-                {
-                    video.muted = false;
-                }
-            }
-        }
-        else
-        {
-            console.warn('Unable to set media\'s volume: media element is undefined.');
-        }
-    }
-    private get volume()
-    {
-        const video = this.videoElementRef?.value;
-        if (video !== undefined)
-        {
-            return video.volume;
-        }
-        else
-        {
-            return this._volumeInitialValue;
-        }
-    }
+    @state() private videoVolume = this._videoVolumeInitialValue;
 
     private toggleMute()
     {
@@ -105,13 +85,17 @@ export class VPControlsElement extends LitElement
             video.muted = !video.muted
             if (video.muted)
             {
-                this._previousVolume = this.volume;
-                this.volume = 0;
+                this._videoPreviousVolume = this.videoVolume;
+                video.volume = 0;
             }
             else
             {
-                this.volume = this._previousVolume;
+                video.volume = this._videoPreviousVolume;
             }
+        }
+        else
+        {
+            console.error('Cannot toggle video volume: video element is undefined.');
         }
     }
 
@@ -144,8 +128,8 @@ export class VPControlsElement extends LitElement
         const video = this.videoElementRef?.value;
         if (video !== undefined)
         {
-            const currentTime = this.vDurationSafe * Number(input.value);
-            this.vCurrentTime = currentTime;
+            const currentTime = this.videoDurationSafe * Number(input.value);
+            this._progressBarValue = getMediaTimeRatio(currentTime, this.videoDuration);
             video.currentTime = currentTime;
         }
     }
@@ -173,7 +157,11 @@ export class VPControlsElement extends LitElement
     private onVolumeInputInput(ev: InputEvent)
     {
         const input = ev.currentTarget as HTMLInputElement;
-        this.volume = Number(input.value);
+        const video = this.videoElementRef?.value;
+        if (video !== undefined)
+        {
+            video.volume = Number(input.value);
+        }
     }
 
     private async onFullscreenButtonClick(ev: PointerEvent)
@@ -227,14 +215,14 @@ export class VPControlsElement extends LitElement
             case 'ArrowUp':
             {
                 ev.preventDefault();
-                this.volume = Math.min(1, this.volume + 0.1);
+                if (video) video.volume = Math.min(1, this.videoVolume + 0.1);
                 break;
             }
 
             case 'ArrowDown':
             {
                 ev.preventDefault();
-                this.volume = Math.max(0, this.volume - 0.1);
+                if (video) video.volume = Math.max(0, this.videoVolume - 0.1);
                 break;
             }
 
@@ -258,6 +246,32 @@ export class VPControlsElement extends LitElement
         }
     };
 
+    private onMediaDurationChange = (ev: Event) =>
+    {
+        const e = ev.currentTarget as HTMLMediaElement;
+        this.videoDuration = e.duration;
+        this._progressBarValue = getMediaTimeRatio(e.currentTime, e.duration);
+    };
+
+    private onMediaPauseOrPlay = (ev: Event) =>
+    {
+        const e = ev.currentTarget as HTMLMediaElement;
+        this.videoPaused = e.paused;
+    };
+
+    private onMediaTimeUpdate = (ev: Event) =>
+    {
+        const e = ev.currentTarget as HTMLMediaElement;
+        this.videoCurrentTime = e.currentTime;
+        this._progressBarValue = getMediaTimeRatio(e.currentTime, e.duration);
+    };
+
+    private onMediaVolumeChange = (ev: Event) =>
+    {
+        const e = ev.currentTarget as HTMLMediaElement;
+        this.videoVolume = e.volume;
+    };
+
     //#endregion
 
 
@@ -268,11 +282,40 @@ export class VPControlsElement extends LitElement
     {
         super.connectedCallback();
         window.addEventListener('keydown', this.handleKeyboardInput);
+
+        const video = this.videoElementRef?.value;
+        if (video !== undefined)
+        {
+            video.addEventListener('durationchange', this.onMediaDurationChange);
+            video.addEventListener('pause', this.onMediaPauseOrPlay);
+            video.addEventListener('play', this.onMediaPauseOrPlay);
+            video.addEventListener('timeupdate', this.onMediaTimeUpdate);
+            video.addEventListener('volumechange', this.onMediaVolumeChange);
+        }
+        else
+        {
+            console.error('Cannot add event handlers in connected callback: video elemenet is undefined.');
+        }
     }
 
     override disconnectedCallback()
     {
         window.removeEventListener('keydown', this.handleKeyboardInput);
+
+        const video = this.videoElementRef?.value;
+        if (video !== undefined)
+        {
+            video.removeEventListener('durationchange', this.onMediaDurationChange);
+            video.removeEventListener('pause', this.onMediaPauseOrPlay);
+            video.removeEventListener('play', this.onMediaPauseOrPlay);
+            video.removeEventListener('timeupdate', this.onMediaTimeUpdate);
+            video.removeEventListener('volumechange', this.onMediaVolumeChange);
+        }
+        else
+        {
+            console.error('Cannot remove event handlers in disconnected callback: video elemenet is undefined.');
+        }
+
         super.disconnectedCallback();
     }
 
@@ -288,16 +331,16 @@ export class VPControlsElement extends LitElement
             {
                 maybeDuration = html`
                     /
-                    <time datetime=${toISODuration(this.vDuration)}>
-                        ${toHHMMSSDuration(this.vDuration)}
+                    <time datetime=${toISODuration(this.videoDuration)}>
+                        ${toHHMMSSDuration(this.videoDuration)}
                     </time>
                 `;
             }
 
             return html`
                 <div class="time">
-                    <time datetime=${toISODuration(this.vCurrentTimeSafe)}>
-                        ${toHHMMSSDuration(this.vCurrentTimeSafe)}
+                    <time datetime=${toISODuration(this.videoCurrentTimeSafe)}>
+                        ${toHHMMSSDuration(this.videoCurrentTimeSafe)}
                     </time>
                     ${maybeDuration}
                 </div>
@@ -308,13 +351,13 @@ export class VPControlsElement extends LitElement
         {
             return html`
                 <div class="time">
-                    <time datetime=${toISODuration(this.vCurrentTimeSafe)}>
-                        ${toHHMMSSDuration(this.vCurrentTimeSafe)}
+                    <time datetime=${toISODuration(this.videoCurrentTimeSafe)}>
+                        ${toHHMMSSDuration(this.videoCurrentTimeSafe)}
                     </time>
                 </div>
                 <div class="input">
                     <div class="input-range">
-                        <progress max="1" value=${this.videoTimeRatio}>
+                        <progress max="1" value=${this._progressBarValue}>
                             ${this.videoTimeRatio * 100}%
                         </progress>
                         <input
@@ -330,8 +373,8 @@ export class VPControlsElement extends LitElement
                     </div>
                 </div>
                 <div class="time">
-                    <time datetime=${toISODuration(this.vDurationSafe)}>
-                        ${toHHMMSSDuration(this.vDurationSafe)}
+                    <time datetime=${toISODuration(this.videoDurationSafe)}>
+                        ${toHHMMSSDuration(this.videoDurationSafe)}
                     </time>
                 </div>
             `;
@@ -345,10 +388,10 @@ export class VPControlsElement extends LitElement
                 <div class="play">
                     <button
                         class="button"
-                        title=${this.vPaused ? 'Play' : 'Pause'}
+                        title=${this.videoPaused ? 'Play' : 'Pause'}
                         @click=${this.onPlayButtonClick}
                     >
-                        ${this.vPaused
+                        ${this.videoPaused
                             ? unsafeSVG(icon_play)
                             : unsafeSVG(icon_pause)}
                     </button>
@@ -361,12 +404,12 @@ export class VPControlsElement extends LitElement
                 <div class="volume">
                     <button
                         class="button"
-                        title=${this.volume <= 0 ? 'Unmute' : 'Mute'}
+                        title=${this.videoVolume <= 0 ? 'Unmute' : 'Mute'}
                         @click=${this.toggleMute}
                     >
-                        ${this.volume <= 0
+                        ${this.videoVolume <= 0
                             ? unsafeSVG(icon_volume_off)
-                            : this.volume > 0 && this.volume < 0.5
+                            : this.videoVolume > 0 && this.videoVolume < 0.5
                                 ? unsafeSVG(icon_volume_low)
                                 : unsafeSVG(icon_volume_high)}
                     </button>
@@ -374,13 +417,13 @@ export class VPControlsElement extends LitElement
                     <div class="volume-bar-wrapper">
                         <div class="volume-bar">
                             <div class="input-range">
-                                <meter value=${this.volume}>${this.volume * 100}%</meter>
+                                <meter value=${this.videoVolume}>${this.videoVolume * 100}%</meter>
                                 <input
                                     type="range"
                                     min="0"
                                     max="1"
                                     step="any"
-                                    .value=${this.volume}
+                                    .value=${this.videoVolume}
                                     @input=${this.onVolumeInputInput}
                                 />
                             </div>
